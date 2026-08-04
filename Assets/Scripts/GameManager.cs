@@ -45,14 +45,26 @@ public class GameManager : MonoBehaviour
     }
 
     void HandlePlayerInput(Vector2 mousePos) {
-        if (gameBoard.PlaceCoin(Mathf.FloorToInt(mousePos.x), currentPlayer)) {
-            UpdateCurrentPlayer();
+        int xPos = Mathf.FloorToInt(mousePos.x);
+
+        if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
             Display.Instance.DrawBoard(gameBoard, player1, player2);
+
+            // check win condition
+            if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
+                EndGame();
+            }
+
+            UpdateCurrentPlayer();
         }
     }
 
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1; // TODO: beautiful
+    }
+
+    void EndGame() {
+        Debug.Log("victory player " + currentPlayer);
     }
     
 }
