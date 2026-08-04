@@ -16,6 +16,7 @@ public class Display: MonoBehaviour
     }
 
     // draw the board according to which player placed their coins where
+    // TODO: might wanna optimize redrawing the entire board
     public void DrawBoard(Board board, Player player1, Player player2) {
         ClearParent();
 
