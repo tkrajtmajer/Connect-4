@@ -8,7 +8,8 @@ public class GameManager : MonoBehaviour
     public int boardWidth;
     public int boardHeight;
 
-    [Header("Player Settings")]
+    [Header("Player-chosen Settings")]
+    public Color boardColor;
     public Color player1Color;
     public Color player2Color;
 
@@ -28,12 +29,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        gameBoard = new Board(boardWidth, boardHeight);
+        gameBoard = new Board(boardWidth, boardHeight, boardColor);
         player1 = new Player(player1Color);
         player2 = new Player(player2Color);
         currentPlayer = 1; // TODO: random
 
-        Display.Instance.DrawBoard(gameBoard, player1, player2);
+        Display.Instance.DrawFullBoard(gameBoard, player1, player2);
     }
 
     void OnEnable() {
@@ -48,7 +49,9 @@ public class GameManager : MonoBehaviour
         int xPos = Mathf.FloorToInt(mousePos.x);
 
         if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
-            Display.Instance.DrawBoard(gameBoard, player1, player2);
+            Player player = (currentPlayer == 1) ? player1 : player2;
+
+            Display.Instance.DrawTile(gameBoard, xPos, yPos, player);
 
             // check win condition
             if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {

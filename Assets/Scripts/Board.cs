@@ -6,9 +6,12 @@ public class Board {
     public int height {get;}
     int[,] cells;
 
-    public Board(int boardWidth, int boardHeight) {
+    public Color boardColor {get;}
+
+    public Board(int boardWidth, int boardHeight, Color boardColor) {
         this.width = boardWidth;
         this.height = boardHeight;
+        this.boardColor = boardColor;
 
         this.cells = new int[boardWidth, boardHeight];
     }

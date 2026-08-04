@@ -3,7 +3,10 @@ using UnityEngine;
 public class Display: MonoBehaviour
 {
     public static Display Instance { get; private set; }
-    public Transform parent;
+    public Transform parentBoard;
+    public GameObject boardTilePrefab;
+
+    public Transform parentCoins;
     public GameObject playerCoinPrefab;
 
     void Awake() {
@@ -16,16 +19,19 @@ public class Display: MonoBehaviour
     }
 
     // draw the board according to which player placed their coins where
-    // TODO: might wanna optimize redrawing the entire board
-    public void DrawBoard(Board board, Player player1, Player player2) {
-        ClearParent();
+    public void DrawFullBoard(Board board, Player player1, Player player2) {
+        ClearParent(parentBoard);
+        ClearParent(parentCoins);
 
         for(int x = 0; x < board.width; x++) {
             for(int y = 0; y < board.height; y++) {
+                GameObject boardTileGO = Instantiate(boardTilePrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentBoard);
+                boardTileGO.GetComponent<SpriteRenderer>().color = board.boardColor;
+
                 int cellValue = board.GetCell(x, y);
                 if (cellValue == 0) continue;
 
-                GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(x, y, 0), Quaternion.identity, parent);
+                GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentCoins);
 
                 if(cellValue == 1) {
                     coinGO.GetComponent<SpriteRenderer>().color = player1.playerColor;
@@ -36,10 +42,15 @@ public class Display: MonoBehaviour
             }
         }
 
-        Debug.Log("board drawn");
+        // Debug.Log("board drawn");
     }
 
-    void ClearParent() {
+    void ClearParent(Transform parent) {
         for (int i = parent.childCount - 1; i >= 0; i--) Destroy(parent.GetChild(i).gameObject);
+    }
+
+    public void DrawTile(Board board, int xPos, int yPos, Player player) {
+        GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(xPos, yPos, 0), Quaternion.identity, parentCoins);
+        coinGO.GetComponent<SpriteRenderer>().color = player.playerColor;
     }
 }
