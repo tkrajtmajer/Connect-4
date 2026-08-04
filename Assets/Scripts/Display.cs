@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Display: MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Display: MonoBehaviour
 
     public Transform parentCoins;
     public GameObject playerCoinPrefab;
+    float gravity = 9.81f;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -49,8 +51,26 @@ public class Display: MonoBehaviour
         for (int i = parent.childCount - 1; i >= 0; i--) Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void DrawTile(Board board, int xPos, int yPos, Player player) {
-        GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(xPos, yPos, 0), Quaternion.identity, parentCoins);
+    public void DrawTile(Board board, int xPos, int initYPos, int finalYPos, Player player) {
+        GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(xPos, initYPos, 0), Quaternion.identity, parentCoins);
         coinGO.GetComponent<SpriteRenderer>().color = player.playerColor;
+
+        StartCoroutine(DropCoin(coinGO, finalYPos));
+    }
+
+    IEnumerator DropCoin(GameObject coinGO, int finalYPos) {
+        float velocity = 0;
+        Vector3 currentPos = coinGO.transform.position;
+
+        while (coinGO.transform.position.y > finalYPos) {
+            velocity += gravity * Time.deltaTime;
+            currentPos.y -= velocity * Time.deltaTime;
+
+            if(currentPos.y < finalYPos) currentPos.y = finalYPos;
+
+            coinGO.transform.position = currentPos;
+
+            yield return null;
+        }
     }
 }

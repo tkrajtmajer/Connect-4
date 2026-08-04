@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
         if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
             Player player = (currentPlayer == 1) ? player1 : player2;
 
-            Display.Instance.DrawTile(gameBoard, xPos, yPos, player);
+            Display.Instance.DrawTile(gameBoard, xPos, boardHeight, yPos, player);
 
             // check win condition
             if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
