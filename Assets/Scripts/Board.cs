@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class Board {
-    public int width {get;}
-    public int height {get;}
+    public int width {get; private set;}
+    public int height {get; private set;}
     Tile[,] cells;
     System.Random rng = new System.Random();
 
@@ -113,5 +113,37 @@ public class Board {
         }
 
         return currentTally;
+    }
+
+    public void UsePowerUp(TileType type) {
+        switch (type) {
+            case TileType.RotateBoard:
+                RotateBoard();
+                break;
+            
+            default:
+                break;
+        }
+    }
+
+    // rotate cw
+    void RotateBoard() {
+        int temp = width;
+        width = height;
+        height = temp;
+
+        Tile[,] newBoard = new Tile[width, height];
+
+        // for(int xOld = 0, yNew = height - 1; xOld < height, yNew >= 0; xOld++, yNew--) {
+        //     for(int yOld = 0, xNew = 0; yOld < width, xNew < width; yOld++, xNew++) {
+        for(int xOld = 0; xOld < height; xOld++) {
+            for(int yOld = 0; yOld < width; yOld++) {
+                int yNew = height - 1 - xOld;
+                int xNew = yOld;
+                newBoard[xNew, yNew] = GetCell(xOld, yOld);
+            } 
+        }
+
+        cells = newBoard;
     }
 }

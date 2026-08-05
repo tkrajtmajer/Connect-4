@@ -43,17 +43,17 @@ public class Display: MonoBehaviour
                 
                 boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
 
-                int cellValue = board.GetCellOccupancy(x, y);
-                if (cellValue == 0) continue;
+                // int cellValue = board.GetCellOccupancy(x, y);
+                // if (cellValue == 0) continue;
 
-                GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentCoins);
+                // GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentCoins);
 
-                if(cellValue == 1) {
-                    coinGO.GetComponent<SpriteRenderer>().color = player1.playerColor;
-                }
-                else if(cellValue == 2) {
-                    coinGO.GetComponent<SpriteRenderer>().color = player2.playerColor;
-                }
+                // if(cellValue == 1) {
+                //     coinGO.GetComponent<SpriteRenderer>().color = player1.playerColor;
+                // }
+                // else if(cellValue == 2) {
+                //     coinGO.GetComponent<SpriteRenderer>().color = player2.playerColor;
+                // }
             }
         }
     }

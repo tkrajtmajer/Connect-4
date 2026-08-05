@@ -59,40 +59,99 @@ public class GameManager : MonoBehaviour
 
     void HandlePlayerInput(Vector2 mousePos) {
         int xPos = Mathf.FloorToInt(mousePos.x);
-
+        
         if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
-            Player player = (currentPlayer == 1) ? player1 : player2;
-            bool redrawTile = false;
 
-            if(gameBoard.GetCellType(xPos, yPos) != TileType.Normal) {
-                TileType type = gameBoard.GetCellType(xPos, yPos);
-
-                if(player.GivePlayerPowerUp(type, out int slotIdx)) {
-                    Debug.Log("gave player tile " + type.ToString());
-
-                    redrawTile = true;
-                    HUD.Instance.AddPowerUp(currentPlayer, slotIdx, type);
-                    gameBoard.UseTile(xPos, yPos); // TODO: gonna keep it here for now; probably best if it can still be used after for ex board flip
-                }
-            }
-
-            Display.Instance.DrawCoin(gameBoard, xPos, boardHeight, yPos, player, redrawTile);
-
-            // check win condition
-            if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
-                EndGame();
-            }
-
+            CheckPowerUps(xPos, yPos, currentPlayer, out bool redrawTile);
+            DropCoin(xPos, yPos, boardHeight, currentPlayer, redrawTile);
+            CheckWinCondition(xPos, yPos);
             UpdateCurrentPlayer();
         }
     }
 
-    public void HandlePowerUp(TileType type, int playerId, int currentSlot) {
+    public void CheckPowerUps(int xPos, int yPos, int playerId, out bool redrawTile) {
+        Player player = GetPlayer(playerId);
+        redrawTile = false;
 
+        if(gameBoard.GetCellType(xPos, yPos) != TileType.Normal) {
+            TileType type = gameBoard.GetCellType(xPos, yPos);
+
+            if(player.GivePlayerPowerUp(type, out int slotIdx)) {
+                Debug.Log("gave player tile " + type.ToString());
+
+                redrawTile = true;
+                HUD.Instance.AddPowerUp(playerId, slotIdx, type);
+                gameBoard.UseTile(xPos, yPos); 
+            }
+
+            // Debug.Log("give powerup to player " + playerId);
+        }
+    }
+
+    void DropCoin(int xPos, int yPos, int yInit, int playerId, bool redrawTile) {
+        Player player = GetPlayer(playerId);
+
+        Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, player, redrawTile);
+    }
+
+    void CheckWinCondition(int xPos, int yPos) {
+        // check win condition
+        if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
+            EndGame();
+        }
+    }
+
+    void CheckWinConditionBoard() {
+        // check win condition over entire board
+        for(int xPos = 0; xPos < gameBoard.width; xPos++) {
+            for(int yPos = 0; yPos < gameBoard.height; yPos++) {
+                if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
+                    EndGame();
+                }
+            }
+        }
+    }
+
+    public void HandlePowerUp(TileType type, int playerId, int slotIdx) {
+        if (playerId != currentPlayer) return;
+
+        Player player = GetPlayer(playerId);
+
+        gameBoard.UsePowerUp(type);
+        player.ClearSlot(slotIdx);
+        HUD.Instance.RemovePowerUp(playerId, slotIdx);
+        Display.Instance.DrawFullBoard(gameBoard, player1, player2); // TODO: not always true
+
+        if(type == TileType.RotateBoard) RedropCoins();
+    }
+
+    void RedropCoins() {
+        // drop coins after or flip rotation
+
+        for(int x = 0; x < gameBoard.width; x++) {
+            for(int y = 0; y < gameBoard.height; y++) {
+                int playerId = gameBoard.GetCellOccupancy(x, y);
+
+                if(playerId != 0) {
+                    // re-drop the coin
+                    gameBoard.SetCellOccupancy(x, y, 0);
+                    gameBoard.PlaceCoin(x, playerId, out int yOut);
+
+                    CheckPowerUps(x, yOut, playerId, out bool redrawTile);
+                    DropCoin(x, yOut, y, playerId, redrawTile);
+                }
+            }
+        }
+
+        CheckWinConditionBoard();
     }
 
     void UpdateCurrentPlayer() {
-        currentPlayer = (currentPlayer == 1) ? 2 : 1; // TODO: beautiful
+        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+    }
+
+    Player GetPlayer(int playerId) {
+        return playerId == 1 ? player1 : player2;
     }
 
     void EndGame() {

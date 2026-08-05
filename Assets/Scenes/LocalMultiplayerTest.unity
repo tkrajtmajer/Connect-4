@@ -856,13 +856,13 @@ MonoBehaviour:
     - tileType: 0
       tileProbability: 6
     - tileType: 1
-      tileProbability: 1
+      tileProbability: 0
     - tileType: 2
       tileProbability: 1
     - tileType: 3
-      tileProbability: 1
+      tileProbability: 0
     - tileType: 4
-      tileProbability: 1
+      tileProbability: 0
   boardColor: {r: 0.22352941, g: 0.28235295, b: 0.7058824, a: 1}
   player1Color: {r: 1, g: 0, b: 0, a: 1}
   player2Color: {r: 1, g: 0.86989117, b: 0, a: 1}
