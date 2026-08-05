@@ -66,14 +66,14 @@ public class Display: MonoBehaviour
         boardTileGOs[x, y].GetComponent<SpriteRenderer>().color = board.boardColor;
     }
 
-    public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, Player player) {
+    public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, Player player, bool redrawTile) {
         GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(xPos, initYPos, 0), Quaternion.identity, parentCoins);
         coinGO.GetComponent<SpriteRenderer>().color = player.playerColor;
 
-        StartCoroutine(DropCoin(coinGO, finalYPos, board, xPos));
+        StartCoroutine(DropCoin(coinGO, finalYPos, board, xPos, redrawTile));
     }
 
-    IEnumerator DropCoin(GameObject coinGO, int finalYPos, Board board, int xPos) {
+    IEnumerator DropCoin(GameObject coinGO, int finalYPos, Board board, int xPos, bool redrawTile) {
         float velocity = 0;
         Vector3 currentPos = coinGO.transform.position;
 
@@ -88,6 +88,6 @@ public class Display: MonoBehaviour
             yield return null;
         }
 
-        RedrawNormalTile(board, xPos, finalYPos);
+        if(redrawTile) RedrawNormalTile(board, xPos, finalYPos);
     }
 }

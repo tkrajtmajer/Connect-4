@@ -62,15 +62,21 @@ public class GameManager : MonoBehaviour
 
         if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
             Player player = (currentPlayer == 1) ? player1 : player2;
+            bool redrawTile = false;
 
             if(gameBoard.GetCellType(xPos, yPos) != TileType.Normal) {
-                player.GivePlayerTile(gameBoard.GetCellType(xPos, yPos));
-                Debug.Log("gave player tile " + gameBoard.GetCellType(xPos, yPos).ToString());
+                TileType type = gameBoard.GetCellType(xPos, yPos);
 
-                gameBoard.UseTile(xPos, yPos);
+                if(player.GivePlayerPowerUp(type, out int slotIdx)) {
+                    Debug.Log("gave player tile " + type.ToString());
+
+                    redrawTile = true;
+                    HUD.Instance.AddPowerUp(currentPlayer, slotIdx, type);
+                    gameBoard.UseTile(xPos, yPos); // TODO: gonna keep it here for now; probably best if it can still be used after for ex board flip
+                }
             }
 
-            Display.Instance.DrawCoin(gameBoard, xPos, boardHeight, yPos, player);
+            Display.Instance.DrawCoin(gameBoard, xPos, boardHeight, yPos, player, redrawTile);
 
             // check win condition
             if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
@@ -79,6 +85,10 @@ public class GameManager : MonoBehaviour
 
             UpdateCurrentPlayer();
         }
+    }
+
+    public void HandlePowerUp(TileType type, int playerId, int currentSlot) {
+
     }
 
     void UpdateCurrentPlayer() {

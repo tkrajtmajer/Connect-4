@@ -1,10 +1,29 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Player {
 
     public Color playerColor {get;}
-
+    public TileType?[] playerCollectedTiles = new TileType?[3];
+    
     public Player(Color playerColor) {
         this.playerColor = playerColor;
+    }
+
+    public bool GivePlayerPowerUp(TileType powerUpType, out int slotIdx) {
+        // find earliest empty slot
+        for (int i = 0; i < playerCollectedTiles.Length; i++) {
+            if (playerCollectedTiles[i] == null) {
+                playerCollectedTiles[i] = powerUpType;
+                slotIdx = i;
+                return true;
+            }
+        }
+        slotIdx = -1;
+        return false;
+    }
+
+    public void ClearSlot(int slotIdx) {
+        playerCollectedTiles[slotIdx] = null;
     }
 }
