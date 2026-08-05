@@ -120,6 +120,10 @@ public class Board {
             case TileType.RotateBoard:
                 RotateBoard();
                 break;
+
+            case TileType.FlipBoard:
+                FlipBoard();
+                break;
             
             default:
                 break;
@@ -142,6 +146,21 @@ public class Board {
                 int xNew = yOld;
                 newBoard[xNew, yNew] = GetCell(xOld, yOld);
             } 
+        }
+
+        cells = newBoard;
+    }
+
+    void FlipBoard() {
+
+        Tile[,] newBoard = new Tile[width, height];
+
+        for(int xOld = 0; xOld < width; xOld++) {
+            for(int yOld = 0; yOld < height; yOld++) {
+                int xNew = xOld;
+                int yNew = height - yOld - 1;
+                newBoard[xNew, yNew] = GetCell(xOld, yOld);
+            }
         }
 
         cells = newBoard;

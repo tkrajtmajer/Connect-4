@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
         HUD.Instance.RemovePowerUp(playerId, slotIdx);
         Display.Instance.DrawFullBoard(gameBoard, player1, player2); // TODO: not always true
 
-        if(type == TileType.RotateBoard) RedropCoins();
+        if(type == TileType.RotateBoard || type == TileType.FlipBoard) RedropCoins();
     }
 
     void RedropCoins() {

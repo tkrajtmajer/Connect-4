@@ -856,7 +856,7 @@ MonoBehaviour:
     - tileType: 0
       tileProbability: 6
     - tileType: 1
-      tileProbability: 0
+      tileProbability: 1
     - tileType: 2
       tileProbability: 1
     - tileType: 3
