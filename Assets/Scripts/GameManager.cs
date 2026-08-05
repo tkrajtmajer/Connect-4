@@ -63,12 +63,14 @@ public class GameManager : MonoBehaviour
         if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
             Player player = (currentPlayer == 1) ? player1 : player2;
 
-            Display.Instance.DrawTile(gameBoard, xPos, boardHeight, yPos, player);
-
             if(gameBoard.GetCellType(xPos, yPos) != TileType.Normal) {
-                player.GivePlayerTile(gameBoard.GetCell(xPos, yPos));
+                player.GivePlayerTile(gameBoard.GetCellType(xPos, yPos));
                 Debug.Log("gave player tile " + gameBoard.GetCellType(xPos, yPos).ToString());
+
+                gameBoard.UseTile(xPos, yPos);
             }
+
+            Display.Instance.DrawCoin(gameBoard, xPos, boardHeight, yPos, player);
 
             // check win condition
             if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {

@@ -590,11 +590,11 @@ MonoBehaviour:
   tileProbList:
     tileProbabilities:
     - tileType: 0
-      tileProbability: 7
+      tileProbability: 6
     - tileType: 1
       tileProbability: 1
     - tileType: 2
-      tileProbability: 0.5
+      tileProbability: 1
     - tileType: 3
       tileProbability: 1
     - tileType: 4

@@ -5,6 +5,7 @@ public class Board {
     public int width {get;}
     public int height {get;}
     Tile[,] cells;
+    System.Random rng = new System.Random();
 
     public Color boardColor {get;}
 
@@ -48,8 +49,6 @@ public class Board {
         float totalP = 0;
         foreach(float p in tileProbabilities.Values) totalP += p;
 
-        System.Random rng = new System.Random();
-
         double roll = rng.NextDouble() * totalP;
 
         foreach(KeyValuePair<TileType, float> t in tileProbabilities) {
@@ -60,6 +59,10 @@ public class Board {
         }
 
         return TileType.Normal; // fallback
+    }
+
+    public void UseTile(int xPos, int yPos) {
+        cells[xPos, yPos].tileType = TileType.Normal;
     }
 
     // returns whether coin was placed based on whether grid is full

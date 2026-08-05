@@ -6,6 +6,7 @@ public class Display: MonoBehaviour
     public static Display Instance { get; private set; }
     public Transform parentBoard;
     public GameObject boardTilePrefab;
+    GameObject[,] boardTileGOs;
 
     public Transform parentCoins;
     public GameObject playerCoinPrefab;
@@ -25,16 +26,19 @@ public class Display: MonoBehaviour
         ClearParent(parentBoard);
         ClearParent(parentCoins);
 
+        boardTileGOs = new GameObject[board.width, board.height];
+
         for(int x = 0; x < board.width; x++) {
             for(int y = 0; y < board.height; y++) {
                 GameObject boardTileGO = Instantiate(boardTilePrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentBoard);
+                boardTileGOs[x, y] = boardTileGO;
                 
                 Color tileColor = board.GetCellType(x, y) switch {
-                    TileType.RotateBoard => tileColor = GameManager.Instance.colorRotate,
-                    TileType.FlipBoard => tileColor = GameManager.Instance.colorFlip,
-                    TileType.BlowUp => tileColor = GameManager.Instance.colorBlowup,
-                    TileType.SwapNeighbor => tileColor = GameManager.Instance.colorSwap,
-                    _ => tileColor = board.boardColor
+                    TileType.RotateBoard => GameManager.Instance.colorRotate,
+                    TileType.FlipBoard => GameManager.Instance.colorFlip,
+                    TileType.BlowUp => GameManager.Instance.colorBlowup,
+                    TileType.SwapNeighbor => GameManager.Instance.colorSwap,
+                    _ => board.boardColor
                 };
                 
                 boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
@@ -58,14 +62,18 @@ public class Display: MonoBehaviour
         for (int i = parent.childCount - 1; i >= 0; i--) Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void DrawTile(Board board, int xPos, int initYPos, int finalYPos, Player player) {
+    public void RedrawNormalTile(Board board, int x, int y) {
+        boardTileGOs[x, y].GetComponent<SpriteRenderer>().color = board.boardColor;
+    }
+
+    public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, Player player) {
         GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(xPos, initYPos, 0), Quaternion.identity, parentCoins);
         coinGO.GetComponent<SpriteRenderer>().color = player.playerColor;
 
-        StartCoroutine(DropCoin(coinGO, finalYPos));
+        StartCoroutine(DropCoin(coinGO, finalYPos, board, xPos));
     }
 
-    IEnumerator DropCoin(GameObject coinGO, int finalYPos) {
+    IEnumerator DropCoin(GameObject coinGO, int finalYPos, Board board, int xPos) {
         float velocity = 0;
         Vector3 currentPos = coinGO.transform.position;
 
@@ -79,5 +87,7 @@ public class Display: MonoBehaviour
 
             yield return null;
         }
+
+        RedrawNormalTile(board, xPos, finalYPos);
     }
 }
