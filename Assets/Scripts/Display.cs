@@ -28,9 +28,18 @@ public class Display: MonoBehaviour
         for(int x = 0; x < board.width; x++) {
             for(int y = 0; y < board.height; y++) {
                 GameObject boardTileGO = Instantiate(boardTilePrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentBoard);
-                boardTileGO.GetComponent<SpriteRenderer>().color = board.boardColor;
+                
+                Color tileColor = board.GetCellType(x, y) switch {
+                    TileType.RotateBoard => tileColor = GameManager.Instance.colorRotate,
+                    TileType.FlipBoard => tileColor = GameManager.Instance.colorFlip,
+                    TileType.BlowUp => tileColor = GameManager.Instance.colorBlowup,
+                    TileType.SwapNeighbor => tileColor = GameManager.Instance.colorSwap,
+                    _ => tileColor = board.boardColor
+                };
+                
+                boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
 
-                int cellValue = board.GetCell(x, y);
+                int cellValue = board.GetCellOccupancy(x, y);
                 if (cellValue == 0) continue;
 
                 GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentCoins);
@@ -43,8 +52,6 @@ public class Display: MonoBehaviour
                 }
             }
         }
-
-        // Debug.Log("board drawn");
     }
 
     void ClearParent(Transform parent) {

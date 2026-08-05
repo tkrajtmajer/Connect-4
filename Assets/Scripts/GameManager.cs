@@ -1,4 +1,6 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,11 +9,19 @@ public class GameManager : MonoBehaviour
     [Header("Game Setup")]
     public int boardWidth;
     public int boardHeight;
+    public TileProbList tileProbList = new TileProbList();
+    public Dictionary<TileType, float> tileProbDict;
 
     [Header("Player-chosen Settings")]
     public Color boardColor;
     public Color player1Color;
     public Color player2Color;
+
+    [Header("Debug")] // temp
+    public Color colorRotate;
+    public Color colorFlip;
+    public Color colorBlowup;
+    public Color colorSwap;
 
     Board gameBoard;
     Player player1;
@@ -29,7 +39,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        gameBoard = new Board(boardWidth, boardHeight, boardColor);
+        tileProbDict = tileProbList.ToDictionary();
+
+        gameBoard = new Board(boardWidth, boardHeight, boardColor, tileProbDict);
         player1 = new Player(player1Color);
         player2 = new Player(player2Color);
         currentPlayer = 1; // TODO: random
@@ -53,6 +65,11 @@ public class GameManager : MonoBehaviour
 
             Display.Instance.DrawTile(gameBoard, xPos, boardHeight, yPos, player);
 
+            if(gameBoard.GetCellType(xPos, yPos) != TileType.Normal) {
+                player.GivePlayerTile(gameBoard.GetCell(xPos, yPos));
+                Debug.Log("gave player tile " + gameBoard.GetCellType(xPos, yPos).ToString());
+            }
+
             // check win condition
             if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
                 EndGame();
@@ -70,4 +87,21 @@ public class GameManager : MonoBehaviour
         Debug.Log("victory player " + currentPlayer);
     }
     
+}
+
+[Serializable]
+public class TileProbList {
+    public TileProbability[] tileProbabilities;
+
+    public Dictionary<TileType, float> ToDictionary() {
+        Dictionary<TileType, float> dict = new Dictionary<TileType, float>();
+        foreach(var tp in tileProbabilities) dict[tp.tileType] = tp.tileProbability;
+        return dict; 
+    }
+}
+
+[Serializable]
+public class TileProbability {
+    public TileType tileType;
+    public float tileProbability;
 }
