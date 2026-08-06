@@ -5,6 +5,7 @@ public class Display: MonoBehaviour
 {
     public static Display Instance { get; private set; }
     public GameObject boardGO;
+    public Vector2 drawOffset;
     public Transform parentBoard;
     public GameObject boardTilePrefab;
     GameObject[,] boardTileGOs;
@@ -15,6 +16,7 @@ public class Display: MonoBehaviour
 
     [Header("Powerups Setup")]
     public float boardRotationSpeed;
+    public float boardFlipSpeed;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -34,7 +36,7 @@ public class Display: MonoBehaviour
 
         for(int x = 0; x < board.width; x++) {
             for(int y = 0; y < board.height; y++) {
-                GameObject boardTileGO = Instantiate(boardTilePrefab, new Vector3(x - (board.width/2f), y - (board.height/2f), 0), Quaternion.identity, parentBoard);
+                GameObject boardTileGO = Instantiate(boardTilePrefab, new Vector3(x - (board.width/2f) + drawOffset.x, y - (board.height/2f) + drawOffset.y, 0), Quaternion.identity, parentBoard);
                 boardTileGOs[x, y] = boardTileGO;
                 
                 Color tileColor = board.GetCellType(x, y) switch {
@@ -76,9 +78,9 @@ public class Display: MonoBehaviour
     }
 
     public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, Player player, bool redrawTile) {
-        float xPosF = xPos - board.width/2f;
-        float initYPosF = initYPos - board.height/2f;
-        float finalYPosF = finalYPos - board.height/2f;
+        float xPosF = xPos - board.width/2f + drawOffset.x;
+        float initYPosF = initYPos - board.height/2f + drawOffset.y;
+        float finalYPosF = finalYPos - board.height/2f + drawOffset.y;
 
         GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3(xPosF, initYPosF, 0), Quaternion.identity, parentCoins);
         coinGO.GetComponent<SpriteRenderer>().color = player.playerColor;
@@ -121,5 +123,24 @@ public class Display: MonoBehaviour
 
     public void ResetRotation() {
         boardGO.transform.rotation = Quaternion.identity;
+    }
+
+    public IEnumerator FlipBoard() {
+        Vector3 startScale = boardGO.transform.localScale;
+        Vector3 endScale = new Vector3(1, -1 * startScale.y, 1);
+
+        float t = 0;
+
+        while (t < boardRotationSpeed) {
+            t += Time.deltaTime;
+            boardGO.transform.localScale = Vector3.Lerp(startScale, endScale, t / boardFlipSpeed);
+            yield return null;
+        }
+
+        boardGO.transform.localScale = endScale;
+    }
+
+    public void ResetFlip() {
+        boardGO.transform.localScale = new Vector3(1, 1, 1);
     }
 }

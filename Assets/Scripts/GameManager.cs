@@ -133,6 +133,9 @@ public class GameManager : MonoBehaviour
             case TileType.RotateBoard:
                 StartCoroutine(HandleRotation());
                 break;
+            case TileType.FlipBoard:
+                StartCoroutine(HandleFlip());
+                break;
 
             default:
                 break;
@@ -143,7 +146,16 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(Display.Instance.RotateBoard()); // wait for board to rotate visually, then update logic
 
         gameBoard.UsePowerUp(TileType.RotateBoard);
-        // Display.Instance.ResetRotation();
+        Display.Instance.ResetRotation();
+        Display.Instance.DrawFullBoard(gameBoard, player1, player2);
+        RedropCoins();
+    }
+
+    IEnumerator HandleFlip() {
+        yield return StartCoroutine(Display.Instance.FlipBoard());
+
+        gameBoard.UsePowerUp(TileType.FlipBoard);
+        Display.Instance.ResetFlip();
         Display.Instance.DrawFullBoard(gameBoard, player1, player2);
         RedropCoins();
     }

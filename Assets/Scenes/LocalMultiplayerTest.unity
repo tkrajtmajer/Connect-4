@@ -931,11 +931,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Display
   boardGO: {fileID: 1114898566}
+  drawOffset: {x: 0.5, y: 0.5}
   parentBoard: {fileID: 1882181618}
   boardTilePrefab: {fileID: 2832362498770499680, guid: 896f35eda9a918f84a4df52d812160be, type: 3}
   parentCoins: {fileID: 454216299}
   playerCoinPrefab: {fileID: 5311746332918359496, guid: dcd5f868a7e7cdfd0a3808527de61715, type: 3}
   boardRotationSpeed: 0.5
+  boardFlipSpeed: 0.5
 --- !u!1 &1371390116
 GameObject:
   m_ObjectHideFlags: 0
