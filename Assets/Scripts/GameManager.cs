@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -59,6 +60,9 @@ public class GameManager : MonoBehaviour
     }
 
     void HandlePlayerInput(Vector2 mousePos) {
+
+        mousePos += new Vector2(boardWidth / 2f, boardHeight / 2f);
+
         int xPos = Mathf.FloorToInt(mousePos.x);
         
         if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
@@ -118,12 +122,30 @@ public class GameManager : MonoBehaviour
 
         Player player = GetPlayer(playerId);
 
-        gameBoard.UsePowerUp(type);
+        // gameBoard.UsePowerUp(type);
         player.ClearSlot(slotIdx);
         HUD.Instance.RemovePowerUp(playerId, slotIdx);
-        Display.Instance.DrawFullBoard(gameBoard, player1, player2); // TODO: not always true
+        // Display.Instance.DrawFullBoard(gameBoard, player1, player2); // TODO: not always true
 
-        if(type == TileType.RotateBoard || type == TileType.FlipBoard) RedropCoins();
+        // if(type == TileType.RotateBoard || type == TileType.FlipBoard) RedropCoins();
+
+        switch (type) {
+            case TileType.RotateBoard:
+                StartCoroutine(HandleRotation());
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    IEnumerator HandleRotation() {
+        yield return StartCoroutine(Display.Instance.RotateBoard()); // wait for board to rotate visually, then update logic
+
+        gameBoard.UsePowerUp(TileType.RotateBoard);
+        // Display.Instance.ResetRotation();
+        Display.Instance.DrawFullBoard(gameBoard, player1, player2);
+        RedropCoins();
     }
 
     void RedropCoins() {
