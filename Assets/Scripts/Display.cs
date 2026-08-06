@@ -30,7 +30,6 @@ public class Display: MonoBehaviour
     // draw the board according to which player placed their coins where
     public void DrawFullBoard(Board board, Player player1, Player player2) {
         ClearParent(parentBoard);
-        ClearParent(parentCoins);
 
         boardTileGOs = new GameObject[board.width, board.height];
 
@@ -49,24 +48,15 @@ public class Display: MonoBehaviour
                 
                 boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
                 boardTileGO.GetComponentsInChildren<SpriteRenderer>()[1].color = board.boardBgColor;
-
-                // int cellValue = board.GetCellOccupancy(x, y);
-                // if (cellValue == 0) continue;
-
-                // GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3Int(x, y, 0), Quaternion.identity, parentCoins);
-
-                // if(cellValue == 1) {
-                //     coinGO.GetComponent<SpriteRenderer>().color = player1.playerColor;
-                // }
-                // else if(cellValue == 2) {
-                //     coinGO.GetComponent<SpriteRenderer>().color = player2.playerColor;
-                // }
             }
         }
 
         BoxCollider2D boardCollider = boardGO.GetComponent<BoxCollider2D>();
         boardCollider.size = new Vector2(board.width, board.height);
-        // boardCollider.offset = new Vector2(board.width / 2f, board.height / 2f);
+    }
+
+    public void ClearCoins() {
+        ClearParent(parentCoins);
     }
 
     void ClearParent(Transform parent) {

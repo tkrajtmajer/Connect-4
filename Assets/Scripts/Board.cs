@@ -117,23 +117,8 @@ public class Board {
         return currentTally;
     }
 
-    public void UsePowerUp(TileType type) {
-        switch (type) {
-            case TileType.RotateBoard:
-                RotateBoard();
-                break;
-
-            case TileType.FlipBoard:
-                FlipBoard();
-                break;
-            
-            default:
-                break;
-        }
-    }
-
     // rotate cw
-    void RotateBoard() {
+    public void RotateBoard() {
         int temp = width;
         width = height;
         height = temp;
@@ -153,7 +138,7 @@ public class Board {
         cells = newBoard;
     }
 
-    void FlipBoard() {
+    public void FlipBoard() {
 
         Tile[,] newBoard = new Tile[width, height];
 
@@ -166,5 +151,20 @@ public class Board {
         }
 
         cells = newBoard;
+    }
+
+    public void BlowUpCells(int centerX, int centerY) {
+
+        for(int i = -1; i < 2; i++) {
+            for(int j = -1; j < 2; j++) {
+                if(centerX + i < 0 || centerX + i >= width) continue;
+                if(centerY + j < 0 || centerY + j >= height) continue;
+
+                if(centerX + i == centerX && centerY + j == centerY) continue;
+
+                Debug.Log("blew up cell " + (centerX + i) + " " + (centerY + j));
+                SetCellOccupancy(centerX + i, centerY + j, 0);
+            }
+        }
     }
 }

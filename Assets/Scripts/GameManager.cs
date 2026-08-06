@@ -29,6 +29,11 @@ public class GameManager : MonoBehaviour
     Player player1;
     Player player2;
     int currentPlayer;
+    GameState gameState;
+
+    TileType pendingPowerUpType;
+    int pendingPowerUpSlot;
+    int pendingPowerUpPlayerId;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -47,6 +52,7 @@ public class GameManager : MonoBehaviour
         player1 = new Player(player1Color);
         player2 = new Player(player2Color);
         currentPlayer = 1; // TODO: random
+        gameState = GameState.Playing;
 
         Display.Instance.DrawFullBoard(gameBoard, player1, player2);
     }
@@ -61,16 +67,29 @@ public class GameManager : MonoBehaviour
 
     void HandlePlayerInput(Vector2 mousePos) {
 
-        mousePos += new Vector2(boardWidth / 2f, boardHeight / 2f);
+        mousePos += new Vector2(gameBoard.width / 2f, gameBoard.height / 2f);
 
         int xPos = Mathf.FloorToInt(mousePos.x);
+        int yPos = Mathf.FloorToInt(mousePos.y);
         
-        if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yPos)) {
+        if(gameState == GameState.Playing) {
+            if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yOut)) {
 
-            CheckPowerUps(xPos, yPos, currentPlayer, out bool redrawTile);
-            DropCoin(xPos, yPos, boardHeight, currentPlayer, redrawTile);
-            CheckWinCondition(xPos, yPos);
-            UpdateCurrentPlayer();
+                CheckPowerUps(xPos, yOut, currentPlayer, out bool redrawTile);
+                DropCoin(xPos, yOut, boardHeight, currentPlayer, redrawTile);
+                CheckWinCondition(xPos, yOut);
+                UpdateCurrentPlayer();
+            }
+        }
+        else if(gameState == GameState.Waiting) {
+            Debug.Log("waiting");
+            if(gameBoard.GetCellOccupancy(xPos, yPos) == currentPlayer) {
+                // can use the powerup, else needs valid position
+                if(pendingPowerUpType == TileType.BlowUp) {
+                    HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
+                    gameState = GameState.Playing;
+                }
+            }
         }
     }
 
@@ -120,21 +139,19 @@ public class GameManager : MonoBehaviour
     public void HandlePowerUp(TileType type, int playerId, int slotIdx) {
         if (playerId != currentPlayer) return;
 
-        Player player = GetPlayer(playerId);
-
-        // gameBoard.UsePowerUp(type);
-        player.ClearSlot(slotIdx);
-        HUD.Instance.RemovePowerUp(playerId, slotIdx);
-        // Display.Instance.DrawFullBoard(gameBoard, player1, player2); // TODO: not always true
-
-        // if(type == TileType.RotateBoard || type == TileType.FlipBoard) RedropCoins();
-
         switch (type) {
             case TileType.RotateBoard:
-                StartCoroutine(HandleRotation());
+                StartCoroutine(HandleRotation(type, slotIdx, playerId));
                 break;
             case TileType.FlipBoard:
-                StartCoroutine(HandleFlip());
+                StartCoroutine(HandleFlip(type, slotIdx, playerId));
+                break;
+
+            case TileType.BlowUp:
+                pendingPowerUpType = TileType.BlowUp;
+                pendingPowerUpSlot = slotIdx;
+                pendingPowerUpPlayerId = playerId;
+                gameState = GameState.Waiting; // wait for additional input
                 break;
 
             default:
@@ -142,20 +159,42 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator HandleRotation() {
+    IEnumerator HandleRotation(TileType type, int slotIdx, int playerId) {
         yield return StartCoroutine(Display.Instance.RotateBoard()); // wait for board to rotate visually, then update logic
 
-        gameBoard.UsePowerUp(TileType.RotateBoard);
+        gameBoard.RotateBoard();
+        UpdateHUD(type, slotIdx, playerId);
         Display.Instance.ResetRotation();
-        Display.Instance.DrawFullBoard(gameBoard, player1, player2);
-        RedropCoins();
+        RedrawBoard();
     }
 
-    IEnumerator HandleFlip() {
+    IEnumerator HandleFlip(TileType type, int slotIdx, int playerId) {
         yield return StartCoroutine(Display.Instance.FlipBoard());
 
-        gameBoard.UsePowerUp(TileType.FlipBoard);
+        gameBoard.FlipBoard();
+        UpdateHUD(type, slotIdx, playerId);
         Display.Instance.ResetFlip();
+        RedrawBoard();
+    }
+
+    // TODO: add way to undo waiting condition
+    void HandleBlowup(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
+        // add way to blow up coins either w animation or code(?)
+
+        gameBoard.BlowUpCells(centerX, centerY);
+        UpdateHUD(type, slotIdx, playerId);
+        RedrawBoard();
+    }
+
+    void UpdateHUD(TileType type, int slotIdx, int playerId) {
+        Player player = GetPlayer(playerId);
+
+        player.ClearSlot(slotIdx);
+        HUD.Instance.RemovePowerUp(playerId, slotIdx);
+    }
+
+    void RedrawBoard() {
+        Display.Instance.ClearCoins();
         Display.Instance.DrawFullBoard(gameBoard, player1, player2);
         RedropCoins();
     }
@@ -210,4 +249,9 @@ public class TileProbList {
 public class TileProbability {
     public TileType tileType;
     public float tileProbability;
+}
+
+public enum GameState {
+    Playing,
+    Waiting
 }
