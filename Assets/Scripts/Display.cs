@@ -28,7 +28,7 @@ public class Display: MonoBehaviour
     }
 
     // draw the board according to which player placed their coins where
-    public void DrawFullBoard(Board board, Player player1, Player player2) {
+    public void DrawFullBoard(Board board) {
         ClearParent(parentBoard);
 
         boardTileGOs = new GameObject[board.width, board.height];

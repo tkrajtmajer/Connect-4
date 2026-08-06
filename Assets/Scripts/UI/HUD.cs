@@ -8,6 +8,7 @@ public class HUD: MonoBehaviour {
     public GameObject powerUpPrefab;
     public Transform[] player1Slots; // places to spawn each powerup
     public Transform[] player2Slots;
+    public GameObject cancelPowerUpPrefab;
 
     GameObject[] player1SlotItems;
     GameObject[] player2SlotItems;
@@ -22,6 +23,8 @@ public class HUD: MonoBehaviour {
 
         player1SlotItems = new GameObject[player1Slots.Length];
         player2SlotItems = new GameObject[player2Slots.Length];
+
+        cancelPowerUpPrefab.SetActive(false);
     }
 
     public void AddPowerUp(int playerId, int slotIdx, TileType powerUpType) {
@@ -44,5 +47,14 @@ public class HUD: MonoBehaviour {
             Destroy(slotItems[slotIdx]);
             slotItems[slotIdx] = null;
         }
+    }
+
+    public void EnableCancellingPowerUp() {
+        cancelPowerUpPrefab.SetActive(true);
+    }
+
+    public void CancelPowerUp() {
+        cancelPowerUpPrefab.SetActive(false);
+        GameManager.Instance.gameState = GameState.Playing;
     }
 }

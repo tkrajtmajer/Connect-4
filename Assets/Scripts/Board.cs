@@ -125,8 +125,6 @@ public class Board {
 
         Tile[,] newBoard = new Tile[width, height];
 
-        // for(int xOld = 0, yNew = height - 1; xOld < height, yNew >= 0; xOld++, yNew--) {
-        //     for(int yOld = 0, xNew = 0; yOld < width, xNew < width; yOld++, xNew++) {
         for(int xOld = 0; xOld < height; xOld++) {
             for(int yOld = 0; yOld < width; yOld++) {
                 int yNew = height - 1 - xOld;
@@ -162,7 +160,6 @@ public class Board {
 
                 if(centerX + i == centerX && centerY + j == centerY) continue;
 
-                Debug.Log("blew up cell " + (centerX + i) + " " + (centerY + j));
                 SetCellOccupancy(centerX + i, centerY + j, 0);
             }
         }

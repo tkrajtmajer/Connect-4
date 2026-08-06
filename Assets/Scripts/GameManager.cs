@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
     Player player1;
     Player player2;
     int currentPlayer;
-    GameState gameState;
+    internal GameState gameState;
 
     TileType pendingPowerUpType;
     int pendingPowerUpSlot;
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
         currentPlayer = 1; // TODO: random
         gameState = GameState.Playing;
 
-        Display.Instance.DrawFullBoard(gameBoard, player1, player2);
+        Display.Instance.DrawFullBoard(gameBoard);
     }
 
     void OnEnable() {
@@ -156,6 +156,7 @@ public class GameManager : MonoBehaviour
                 pendingPowerUpSlot = slotIdx;
                 pendingPowerUpPlayerId = playerId;
                 gameState = GameState.Waiting; // wait for additional input
+                HUD.Instance.EnableCancellingPowerUp();
                 break;
             
              case TileType.SwapNeighbor:
@@ -163,6 +164,7 @@ public class GameManager : MonoBehaviour
                 pendingPowerUpSlot = slotIdx;
                 pendingPowerUpPlayerId = playerId;
                 gameState = GameState.Waiting; // wait for additional input
+                HUD.Instance.EnableCancellingPowerUp();
                 break;
 
             default:
@@ -201,7 +203,7 @@ public class GameManager : MonoBehaviour
 
         gameBoard.RandomSwapNeighbor(centerX, centerY, playerId);
         UpdateHUD(type, slotIdx, playerId);
-        RedrawBoard(); // TODO: dont redraw entire board for this
+        RedrawBoard();
     }
 
     void UpdateHUD(TileType type, int slotIdx, int playerId) {
@@ -213,7 +215,7 @@ public class GameManager : MonoBehaviour
 
     void RedrawBoard() {
         Display.Instance.ClearCoins();
-        Display.Instance.DrawFullBoard(gameBoard, player1, player2);
+        Display.Instance.DrawFullBoard(gameBoard);
         RedropCoins();
     }
 
