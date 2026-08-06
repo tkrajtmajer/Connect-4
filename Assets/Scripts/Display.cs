@@ -4,6 +4,7 @@ using System.Collections;
 public class Display: MonoBehaviour
 {
     public static Display Instance { get; private set; }
+    public GameObject boardGO;
     public Transform parentBoard;
     public GameObject boardTilePrefab;
     GameObject[,] boardTileGOs;
@@ -42,6 +43,7 @@ public class Display: MonoBehaviour
                 };
                 
                 boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
+                boardTileGO.GetComponentsInChildren<SpriteRenderer>()[1].color = board.boardBgColor;
 
                 // int cellValue = board.GetCellOccupancy(x, y);
                 // if (cellValue == 0) continue;
@@ -56,6 +58,10 @@ public class Display: MonoBehaviour
                 // }
             }
         }
+
+        BoxCollider2D boardCollider = boardGO.GetComponent<BoxCollider2D>();
+        boardCollider.size = new Vector2(board.width, board.height);
+        boardCollider.offset = new Vector2(board.width / 2f, board.height / 2f);
     }
 
     void ClearParent(Transform parent) {

@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Player-chosen Settings")]
     public Color boardColor;
+    public Color boardBgColor;
     public Color player1Color;
     public Color player2Color;
 
@@ -41,7 +42,7 @@ public class GameManager : MonoBehaviour
     {
         tileProbDict = tileProbList.ToDictionary();
 
-        gameBoard = new Board(boardWidth, boardHeight, boardColor, tileProbDict);
+        gameBoard = new Board(boardWidth, boardHeight, boardColor, boardBgColor, tileProbDict);
         player1 = new Player(player1Color);
         player2 = new Player(player2Color);
         currentPlayer = 1; // TODO: random

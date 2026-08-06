@@ -373,7 +373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &556300668
 Transform:
   m_ObjectHideFlags: 0
@@ -864,6 +864,7 @@ MonoBehaviour:
     - tileType: 4
       tileProbability: 0
   boardColor: {r: 0.22352941, g: 0.28235295, b: 0.7058824, a: 1}
+  boardBgColor: {r: 0.10980392, g: 0.09803922, b: 0.58431375, a: 1}
   player1Color: {r: 1, g: 0, b: 0, a: 1}
   player2Color: {r: 1, g: 0.86989117, b: 0, a: 1}
   colorRotate: {r: 0.34646696, g: 0.8066038, b: 0.21686988, a: 1}
@@ -897,6 +898,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efde8418c733b515bae3dbbcfe52a860, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Display
+  boardGO: {fileID: 1114898566}
   parentBoard: {fileID: 1882181618}
   boardTilePrefab: {fileID: 2832362498770499680, guid: 896f35eda9a918f84a4df52d812160be, type: 3}
   parentCoins: {fileID: 454216299}
