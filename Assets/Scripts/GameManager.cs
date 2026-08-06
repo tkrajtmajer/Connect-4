@@ -89,6 +89,10 @@ public class GameManager : MonoBehaviour
                     HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
                     gameState = GameState.Playing;
                 }
+                else if(pendingPowerUpType == TileType.SwapNeighbor) {
+                    HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
+                    gameState = GameState.Playing;
+                }
             }
         }
     }
@@ -153,6 +157,13 @@ public class GameManager : MonoBehaviour
                 pendingPowerUpPlayerId = playerId;
                 gameState = GameState.Waiting; // wait for additional input
                 break;
+            
+             case TileType.SwapNeighbor:
+                pendingPowerUpType = TileType.SwapNeighbor;
+                pendingPowerUpSlot = slotIdx;
+                pendingPowerUpPlayerId = playerId;
+                gameState = GameState.Waiting; // wait for additional input
+                break;
 
             default:
                 break;
@@ -184,6 +195,13 @@ public class GameManager : MonoBehaviour
         gameBoard.BlowUpCells(centerX, centerY);
         UpdateHUD(type, slotIdx, playerId);
         RedrawBoard();
+    }
+
+    void HandleSwap(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
+
+        gameBoard.RandomSwapNeighbor(centerX, centerY, playerId);
+        UpdateHUD(type, slotIdx, playerId);
+        RedrawBoard(); // TODO: dont redraw entire board for this
     }
 
     void UpdateHUD(TileType type, int slotIdx, int playerId) {

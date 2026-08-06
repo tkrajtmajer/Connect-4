@@ -167,4 +167,30 @@ public class Board {
             }
         }
     }
+
+    // swap one adjacent neighbor to the player's own type
+    public void RandomSwapNeighbor(int centerX, int centerY, int playerId) {
+        List<Tile> validNeighbors = new List<Tile>();
+
+        for(int i = -1; i < 2; i++) {
+            for(int j = -1; j < 2; j++) {
+                int x = centerX + i;
+                int y = centerY + j;
+
+                if(x < 0 || x >= width) continue;
+                if(y < 0 || y >= height) continue;
+
+                if(x == centerX && y == centerY) continue;
+
+                int playerInCell = GetCellOccupancy(x, y);
+
+                if(playerInCell != 0 && playerInCell != playerId) validNeighbors.Add(GetCell(x, y));
+            }
+        }
+
+        if(validNeighbors.Count == 0) return;
+
+        int chosenIdx = Random.Range(0, validNeighbors.Count);
+        validNeighbors[chosenIdx].occupiedById = playerId;
+    }
 }
