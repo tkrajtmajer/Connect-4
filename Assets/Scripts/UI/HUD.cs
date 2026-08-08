@@ -53,7 +53,7 @@ public class HUD: MonoBehaviour {
         cancelPowerUpPrefab.SetActive(true);
     }
 
-    public void CancelPowerUp() {
+    public void HideCancelPowerUp() {
         cancelPowerUpPrefab.SetActive(false);
         GameManager.Instance.gameState = GameState.Playing;
     }

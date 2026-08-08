@@ -442,7 +442,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1013462238}
         m_TargetAssemblyTypeName: HUD, Assembly-CSharp
-        m_MethodName: CancelPowerUp
+        m_MethodName: HideCancelPowerUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

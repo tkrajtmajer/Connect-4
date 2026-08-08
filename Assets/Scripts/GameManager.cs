@@ -87,11 +87,11 @@ public class GameManager : MonoBehaviour
                 // can use the powerup, else needs valid position
                 if(pendingPowerUpType == TileType.BlowUp) {
                     HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
-                    gameState = GameState.Playing;
+                    HUD.Instance.HideCancelPowerUp();
                 }
                 else if(pendingPowerUpType == TileType.SwapNeighbor) {
                     HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
-                    gameState = GameState.Playing;
+                    HUD.Instance.HideCancelPowerUp();
                 }
             }
         }
@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
     void CheckWinCondition(int xPos, int yPos) {
         // check win condition
         if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
-            EndGame();
+            EndGame(currentPlayer);
         }
     }
 
@@ -133,8 +133,10 @@ public class GameManager : MonoBehaviour
         // check win condition over entire board
         for(int xPos = 0; xPos < gameBoard.width; xPos++) {
             for(int yPos = 0; yPos < gameBoard.height; yPos++) {
-                if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
-                    EndGame();
+                int cellOccupancyId = gameBoard.GetCellOccupancy(xPos, yPos);
+
+                if (cellOccupancyId != 0 && gameBoard.CheckWin(xPos, yPos, cellOccupancyId)) {
+                    EndGame(cellOccupancyId);
                 }
             }
         }
@@ -248,8 +250,8 @@ public class GameManager : MonoBehaviour
         return playerId == 1 ? player1 : player2;
     }
 
-    void EndGame() {
-        Debug.Log("victory player " + currentPlayer);
+    void EndGame(int winPlayerId) {
+        Debug.Log("victory player " + winPlayerId);
     }
     
 }
