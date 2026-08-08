@@ -14,7 +14,7 @@ public class BoardInputHandler: MonoBehaviour {
 
             Collider2D hit = Physics2D.OverlapPoint(mousePos);
             if (hit != null && hit.gameObject == gameObject) {
-                Debug.Log("Clicked board at " + mousePos.x + ", " + mousePos.y);
+                // Debug.Log("Clicked board at " + mousePos.x + ", " + mousePos.y);
                 MouseClicked?.Invoke(mousePos);
             }
         }
