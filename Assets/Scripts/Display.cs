@@ -30,6 +30,7 @@ public class Display: MonoBehaviour
     // draw the board according to which player placed their coins where
     public void DrawFullBoard(Board board) {
         ClearParent(parentBoard);
+        CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
 
         boardTileGOs = new GameObject[board.width, board.height];
 
@@ -39,15 +40,15 @@ public class Display: MonoBehaviour
                 boardTileGOs[x, y] = boardTileGO;
                 
                 Color tileColor = board.GetCellType(x, y) switch {
-                    TileType.RotateBoard => GameManager.Instance.colorRotate,
-                    TileType.FlipBoard => GameManager.Instance.colorFlip,
-                    TileType.BlowUp => GameManager.Instance.colorBlowup,
-                    TileType.SwapNeighbor => GameManager.Instance.colorSwap,
-                    _ => board.boardColor
+                    TileType.RotateBoard => preset.rotateBoardTileColor,
+                    TileType.FlipBoard => preset.flipBoardTileColor,
+                    TileType.BlowUp => preset.blowupTileColor,
+                    TileType.SwapNeighbor => preset.swapNeighborTileColor,
+                    _ => preset.normalTileColor
                 };
                 
                 boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
-                boardTileGO.GetComponentsInChildren<SpriteRenderer>()[1].color = board.boardBgColor;
+                boardTileGO.GetComponentsInChildren<SpriteRenderer>()[1].color = preset.boardBgColor;
             }
         }
 
@@ -64,16 +65,22 @@ public class Display: MonoBehaviour
     }
 
     public void RedrawNormalTile(Board board, int x, int y) {
-        boardTileGOs[x, y].GetComponent<SpriteRenderer>().color = board.boardColor;
+        boardTileGOs[x, y].GetComponent<SpriteRenderer>().color = PlayerSettings.Instance.gameLookPreset.normalTileColor;
     }
 
-    public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, Player player, bool redrawTile) {
+    public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, int playerId, bool redrawTile) {
         float xPosF = xPos - board.width/2f + drawOffset.x;
         float initYPosF = initYPos - board.height/2f + drawOffset.y;
         float finalYPosF = finalYPos - board.height/2f + drawOffset.y;
 
+        CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
+
         GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3(xPosF, initYPosF, 0), Quaternion.identity, parentCoins);
-        coinGO.GetComponent<SpriteRenderer>().color = player.playerColor;
+        Color playerColor = playerId == 1 ? preset.player1Color : preset.player2Color;
+        coinGO.GetComponent<SpriteRenderer>().color = playerColor;
+
+        Sprite playerSprite = playerId == 1 ? preset.player1Sprite : preset.player2Sprite;
+        coinGO.GetComponent<SpriteRenderer>().sprite = playerSprite;
 
         StartCoroutine(DropCoin(coinGO, finalYPosF, board, xPosF, redrawTile, xPos, finalYPos));
     }

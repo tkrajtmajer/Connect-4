@@ -119,6 +119,51 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &76068392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 76068393}
+  - component: {fileID: 76068394}
+  m_Layer: 0
+  m_Name: settings
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &76068393
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76068392}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &76068394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 76068392}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aaa5e5b312e43736bfc8e1cc5fccd27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSettings
+  gameLookPreset: {fileID: 11400000, guid: a3960fe502bb18822bc33497e27371e1, type: 2}
 --- !u!1 &309019747
 GameObject:
   m_ObjectHideFlags: 0
@@ -907,14 +952,6 @@ MonoBehaviour:
       tileProbability: 1
     - tileType: 4
       tileProbability: 0.8
-  boardColor: {r: 0.22352941, g: 0.28235295, b: 0.7058824, a: 1}
-  boardBgColor: {r: 0.10980392, g: 0.09803922, b: 0.58431375, a: 1}
-  player1Color: {r: 1, g: 0, b: 0, a: 1}
-  player2Color: {r: 1, g: 0.86989117, b: 0, a: 1}
-  colorRotate: {r: 0.34646696, g: 0.8066038, b: 0.21686988, a: 1}
-  colorFlip: {r: 0.68179417, g: 0, b: 1, a: 1}
-  colorBlowup: {r: 0.9103774, g: 0.48812914, b: 0.07300197, a: 1}
-  colorSwap: {r: 0.9198113, g: 0.017354917, b: 0.5217274, a: 1}
 --- !u!4 &1352289311
 Transform:
   m_ObjectHideFlags: 0
@@ -1565,3 +1602,4 @@ SceneRoots:
   - {fileID: 1114898567}
   - {fileID: 1013462242}
   - {fileID: 1646399246}
+  - {fileID: 76068393}

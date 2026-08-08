@@ -13,18 +13,6 @@ public class GameManager : MonoBehaviour
     public TileProbList tileProbList = new TileProbList();
     public Dictionary<TileType, float> tileProbDict;
 
-    [Header("Player-chosen Settings")]
-    public Color boardColor;
-    public Color boardBgColor;
-    public Color player1Color;
-    public Color player2Color;
-
-    [Header("Debug")] // temp
-    public Color colorRotate;
-    public Color colorFlip;
-    public Color colorBlowup;
-    public Color colorSwap;
-
     Board gameBoard;
     Player player1;
     Player player2;
@@ -48,9 +36,9 @@ public class GameManager : MonoBehaviour
     {
         tileProbDict = tileProbList.ToDictionary();
 
-        gameBoard = new Board(boardWidth, boardHeight, boardColor, boardBgColor, tileProbDict);
-        player1 = new Player(player1Color);
-        player2 = new Player(player2Color);
+        gameBoard = new Board(boardWidth, boardHeight, tileProbDict);
+        player1 = new Player();
+        player2 = new Player();
         currentPlayer = 1; // TODO: random
         gameState = GameState.Playing;
 
@@ -119,9 +107,7 @@ public class GameManager : MonoBehaviour
     }
 
     void DropCoin(int xPos, int yPos, int yInit, int playerId, bool redrawTile) {
-        Player player = GetPlayer(playerId);
-
-        Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, player, redrawTile);
+        Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, playerId, redrawTile);
     }
 
     void CheckWinCondition(int xPos, int yPos) {
