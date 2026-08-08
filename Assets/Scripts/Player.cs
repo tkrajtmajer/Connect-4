@@ -5,9 +5,11 @@ public class Player {
 
     public Color playerColor {get;}
     public TileType?[] playerCollectedTiles = new TileType?[3];
+    public bool usedPowerUpInTurn {get; set;}
     
     public Player(Color playerColor) {
         this.playerColor = playerColor;
+        this.usedPowerUpInTurn = false;
     }
 
     public bool GivePlayerPowerUp(TileType powerUpType, out int slotIdx) {

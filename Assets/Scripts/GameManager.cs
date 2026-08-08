@@ -93,6 +93,8 @@ public class GameManager : MonoBehaviour
                     HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
                     HUD.Instance.HideCancelPowerUp();
                 }
+
+                GetPlayer(currentPlayer).usedPowerUpInTurn = true;
             }
         }
     }
@@ -144,6 +146,7 @@ public class GameManager : MonoBehaviour
 
     public void HandlePowerUp(TileType type, int playerId, int slotIdx) {
         if (playerId != currentPlayer) return;
+        if (GetPlayer(currentPlayer).usedPowerUpInTurn == true) return; // only allow one powerup per turn
 
         switch (type) {
             case TileType.RotateBoard:
@@ -178,6 +181,7 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(Display.Instance.RotateBoard()); // wait for board to rotate visually, then update logic
 
         gameBoard.RotateBoard();
+        GetPlayer(currentPlayer).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
         Display.Instance.ResetRotation();
         RedrawBoard();
@@ -187,6 +191,7 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine(Display.Instance.FlipBoard());
 
         gameBoard.FlipBoard();
+        GetPlayer(currentPlayer).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
         Display.Instance.ResetFlip();
         RedrawBoard();
@@ -244,6 +249,7 @@ public class GameManager : MonoBehaviour
 
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        GetPlayer(currentPlayer).usedPowerUpInTurn = false;
     }
 
     Player GetPlayer(int playerId) {

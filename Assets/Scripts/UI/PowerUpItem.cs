@@ -9,7 +9,7 @@ public class PowerUpItem: MonoBehaviour {
     TileType powerUpType;
     int belongsToPlayer;
     int slotIdx;
-    public bool isCancellable;
+    // public bool isCancellable;
 
     public event Action<TileType, int, int> TriggerPowerUp;
 
@@ -18,8 +18,8 @@ public class PowerUpItem: MonoBehaviour {
         this.powerUpType = powerUpType;
         this.slotIdx = slotIdx;
 
-        if(powerUpType == TileType.BlowUp || powerUpType == TileType.SwapNeighbor) isCancellable = true;
-        else isCancellable = false;
+        // if(powerUpType == TileType.BlowUp || powerUpType == TileType.SwapNeighbor) isCancellable = true;
+        // else isCancellable = false;
 
         powerUpName.text = powerUpType.ToString();
     }
