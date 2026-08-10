@@ -16,6 +16,31 @@ public class Board {
         PopulateCellsBasedOnProbabilities(tileProbabilities);
     }
 
+    public Board(int boardWidth, int boardHeight, TileType[] tileTypes) {
+        this.width = boardWidth;
+        this.height = boardHeight;
+
+        this.cells = new Tile[boardWidth, boardHeight];
+
+        for (int x = 0; x < boardWidth; x++) {
+            for (int y = 0; y < boardHeight; y++) {
+                this.cells[x, y] = new Tile(tileTypes[x * boardHeight + y]);
+            }
+        }
+    }
+
+    public TileType[] GetTileTypes() {
+        TileType[] types = new TileType[width * height];
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                types[x * height + y] = cells[x, y].tileType;
+            }
+        }
+
+        return types;
+    }
+
     public Tile GetCell(int x, int y) {
         return cells[x, y];
     }

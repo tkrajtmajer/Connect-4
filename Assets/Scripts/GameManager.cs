@@ -37,6 +37,13 @@ public class GameManager : NetworkBehaviour
 
     void Start()
     {
+        if(!isOnlineGame) {
+            InitializeGame();
+            Display.Instance.DrawFullBoard(gameBoard);
+        }
+    }
+
+    void InitializeGame() {
         tileProbDict = tileProbList.ToDictionary();
 
         gameBoard = new Board(boardWidth, boardHeight, tileProbDict);
@@ -44,8 +51,6 @@ public class GameManager : NetworkBehaviour
         player2 = new Player();
         currentPlayer = 1; // TODO: random
         gameState = GameState.Playing;
-
-        Display.Instance.DrawFullBoard(gameBoard);
     }
 
     void OnEnable() {
@@ -262,20 +267,37 @@ public class GameManager : NetworkBehaviour
     // ~~~~~~~~ NETWORK FUNCTIONS ~~~~~~~~~
 
     public override void OnNetworkSpawn() {
-        if (IsServer) NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+        if (IsServer) {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+
+            InitializeGame();
+            TileType[] types = gameBoard.GetTileTypes();
+        }
     }
 
     void OnClientConnected(ulong clientId) {
         int playerId = clientIdToPlayerId.Count == 0 ? 1 : 2;
         clientIdToPlayerId[clientId] = playerId;
 
-        // Debug.Log("gave player " + clientId + " id " + playerId);
+        TileType[] types = gameBoard.GetTileTypes();
+        SendInitialGameStateRpc(types, currentPlayer, gameState, RpcTarget.Single(clientId, RpcTargetUse.Temp));
     }
 
     int GetPlayerIdForClient(ulong clientId) {
         if(!clientIdToPlayerId.ContainsKey(clientId)) return -1;
         
         return clientIdToPlayerId[clientId];
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    void SendInitialGameStateRpc(TileType[] types, int initCurrentPlayer, GameState initGameState, RpcParams rpcParams = default) {
+        gameBoard = new Board(boardWidth, boardHeight, types);
+        player1 = new Player();
+        player2 = new Player();
+        currentPlayer = initCurrentPlayer;
+        gameState = initGameState;
+
+        Display.Instance.DrawFullBoard(gameBoard);
     }
 
     // server checks if a coin can be placed, if not return, if yes send move to clients to update board state locally
