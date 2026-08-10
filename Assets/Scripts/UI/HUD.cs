@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class HUD: MonoBehaviour {
 
@@ -12,6 +13,8 @@ public class HUD: MonoBehaviour {
 
     GameObject[] player1SlotItems;
     GameObject[] player2SlotItems;
+
+    public event Action CancelledPowerup;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -55,6 +58,7 @@ public class HUD: MonoBehaviour {
 
     public void HideCancelPowerUp() {
         cancelPowerUpPrefab.SetActive(false);
-        GameManager.Instance.gameState = GameState.Playing;
+        // GameManager.Instance.gameState = GameState.Playing;
+        CancelledPowerup?.Invoke();
     }
 }

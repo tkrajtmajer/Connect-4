@@ -185,9 +185,8 @@ public class Board {
         }
     }
 
-    // swap one adjacent neighbor to the player's own type
-    public void RandomSwapNeighbor(int centerX, int centerY, int playerId) {
-        List<Tile> validNeighbors = new List<Tile>();
+    public bool PickRandomNeighbor(int centerX, int centerY, int playerId, out int targetX, out int targetY) {
+        List<(int x, int y)> validNeighbors = new List<(int, int)>();
 
         for(int i = -1; i < 2; i++) {
             for(int j = -1; j < 2; j++) {
@@ -201,13 +200,27 @@ public class Board {
 
                 int playerInCell = GetCellOccupancy(x, y);
 
-                if(playerInCell != 0 && playerInCell != playerId) validNeighbors.Add(GetCell(x, y));
+                if(playerInCell != 0 && playerInCell != playerId) validNeighbors.Add((x, y));
             }
         }
 
-        if(validNeighbors.Count == 0) return;
+        // keep this because i am evil
+        if(validNeighbors.Count == 0) {
+            targetX = -1;
+            targetY = -1;
+            return true;
+        }
 
         int chosenIdx = Random.Range(0, validNeighbors.Count);
-        validNeighbors[chosenIdx].occupiedById = playerId;
+        targetX = validNeighbors[chosenIdx].x;
+        targetY = validNeighbors[chosenIdx].y;
+
+        return true;
+    }
+
+    // swap one adjacent neighbor to the player's own type
+    public void RandomSwapNeighbor(int targetX, int targetY, int playerId) {
+        if(targetX < 0 || targetY < 0) return;
+        SetCellOccupancy(targetX, targetY, playerId);
     }
 }

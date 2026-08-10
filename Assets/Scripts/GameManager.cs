@@ -55,10 +55,12 @@ public class GameManager : NetworkBehaviour
 
     void OnEnable() {
         BoardInputHandler.Instance.MouseClicked += HandlePlayerInput;
+        HUD.Instance.CancelledPowerup += HandleCancelPowerup;
     }
 
     void OnDisable() {
         BoardInputHandler.Instance.MouseClicked -= HandlePlayerInput;
+        HUD.Instance.CancelledPowerup -= HandleCancelPowerup;
     }
 
     void HandlePlayerInput(Vector2 mousePos) {
@@ -82,16 +84,19 @@ public class GameManager : NetworkBehaviour
             // Debug.Log("waiting");
             if(gameBoard.GetCellOccupancy(xPos, yPos) == currentPlayer) {
                 // can use the powerup, else needs valid position
-                if(pendingPowerUpType == TileType.BlowUp) {
-                    HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
-                    HUD.Instance.HideCancelPowerUp();
+                if (isOnlineGame) {
+                    RequestPowerUpRpc(pendingPowerUpType, pendingPowerUpSlot, xPos, yPos);
                 }
-                else if(pendingPowerUpType == TileType.SwapNeighbor) {
-                    HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
-                    HUD.Instance.HideCancelPowerUp();
+                else {
+                    if(pendingPowerUpType == TileType.BlowUp) {
+                        HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
+                    }
+                    else if(pendingPowerUpType == TileType.SwapNeighbor) {
+                        HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
+                    }
                 }
-
-                GetPlayer(currentPlayer).usedPowerUpInTurn = true;
+                gameState = GameState.Playing;
+                HUD.Instance.HideCancelPowerUp();
             }
         }
     }
@@ -154,10 +159,12 @@ public class GameManager : NetworkBehaviour
 
         switch (type) {
             case TileType.RotateBoard:
-                StartCoroutine(HandleRotation(type, slotIdx, playerId));
+                if (isOnlineGame) RequestPowerUpRpc(type, slotIdx, -1, -1);
+                else StartCoroutine(HandleRotation(type, slotIdx, playerId));
                 break;
             case TileType.FlipBoard:
-                StartCoroutine(HandleFlip(type, slotIdx, playerId));
+                if (isOnlineGame) RequestPowerUpRpc(type, slotIdx, -1, -1);
+                else StartCoroutine(HandleFlip(type, slotIdx, playerId));
                 break;
 
             case TileType.BlowUp:
@@ -182,21 +189,23 @@ public class GameManager : NetworkBehaviour
     }
 
     IEnumerator HandleRotation(TileType type, int slotIdx, int playerId) {
-        yield return StartCoroutine(Display.Instance.RotateBoard()); // wait for board to rotate visually, then update logic
-
         gameBoard.RotateBoard();
-        GetPlayer(currentPlayer).usedPowerUpInTurn = true;
+        GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
+
+        yield return StartCoroutine(Display.Instance.RotateBoard());
+
         Display.Instance.ResetRotation();
         RedrawBoard();
     }
 
     IEnumerator HandleFlip(TileType type, int slotIdx, int playerId) {
+        gameBoard.FlipBoard();
+        GetPlayer(playerId).usedPowerUpInTurn = true;
+        UpdateHUD(type, slotIdx, playerId);
+
         yield return StartCoroutine(Display.Instance.FlipBoard());
 
-        gameBoard.FlipBoard();
-        GetPlayer(currentPlayer).usedPowerUpInTurn = true;
-        UpdateHUD(type, slotIdx, playerId);
         Display.Instance.ResetFlip();
         RedrawBoard();
     }
@@ -206,13 +215,20 @@ public class GameManager : NetworkBehaviour
         // add way to blow up coins either w animation or code(?)
 
         gameBoard.BlowUpCells(centerX, centerY);
+        GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
         RedrawBoard();
     }
 
     void HandleSwap(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
 
-        gameBoard.RandomSwapNeighbor(centerX, centerY, playerId);
+        gameBoard.PickRandomNeighbor(centerX, centerY, playerId, out int targetX, out int targetY);
+        DoSwap(type, slotIdx, playerId, targetX, targetY);
+    }
+
+    void DoSwap(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
+        gameBoard.RandomSwapNeighbor(targetX, targetY, playerId);
+        GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
         RedrawBoard();
     }
@@ -258,6 +274,10 @@ public class GameManager : NetworkBehaviour
 
     Player GetPlayer(int playerId) {
         return playerId == 1 ? player1 : player2;
+    }
+
+    void HandleCancelPowerup() {
+        gameState = GameState.Playing;
     }
 
     void EndGame(int winPlayerId) {
@@ -317,6 +337,42 @@ public class GameManager : NetworkBehaviour
         if(!IsServer) gameBoard.PlaceCoin(xPos, playerId, out int _); // clients mirror server if coin was placed
 
         ApplyDroppedCoin(xPos, yPos, playerId);
+    }
+
+    [Rpc(SendTo.Server)]
+    void RequestPowerUpRpc(TileType type, int slotIdx, int centerX, int centerY, RpcParams rpcParams = default) {
+        int playerId = GetPlayerIdForClient(rpcParams.Receive.SenderClientId);
+
+        if (playerId != currentPlayer) return;
+        if (GetPlayer(currentPlayer).usedPowerUpInTurn) return;
+
+        if (type == TileType.SwapNeighbor) {
+            if (!gameBoard.PickRandomNeighbor(centerX, centerY, playerId, out int targetX, out int targetY)) return;
+            ApplySwapRpc(type, slotIdx, playerId, targetX, targetY);
+        }
+        else ApplyPowerUpRpc(type, slotIdx, playerId, centerX, centerY);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ApplyPowerUpRpc(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
+        switch (type) {
+            case TileType.RotateBoard:
+                StartCoroutine(HandleRotation(type, slotIdx, playerId));
+                break;
+            case TileType.FlipBoard:
+                StartCoroutine(HandleFlip(type, slotIdx, playerId));
+                break;
+            case TileType.BlowUp:
+                HandleBlowup(type, slotIdx, playerId, centerX, centerY);
+                break;
+            default:
+                break;
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ApplySwapRpc(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
+        DoSwap(type, slotIdx, playerId, targetX, targetY);
     }
     
 }
