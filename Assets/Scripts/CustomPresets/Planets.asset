@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0536825121f47e48fb76a567ac70fba9, type: 3}
+  m_Name: Planets
+  m_EditorClassIdentifier: Assembly-CSharp::CustomPreset
+  player1Sprite: {fileID: 21300000, guid: de7238ebd8c57c3c898f1dfdcfbc68ba, type: 3}
+  player1Color: {r: 1, g: 1, b: 1, a: 1}
+  player2Sprite: {fileID: 21300000, guid: 042455dd5fdd60113b7e1f4b260ebcba, type: 3}
+  player2Color: {r: 1, g: 1, b: 1, a: 1}
+  boardBgColor: {r: 0.006407972, g: 0.029937007, b: 0.1509434, a: 1}
+  normalTileColor: {r: 0.1532574, g: 0.18469481, b: 0.38679248, a: 1}
+  rotateBoardTileColor: {r: 0.29803923, g: 0.29803923, b: 0.29803923, a: 1}
+  flipBoardTileColor: {r: 0.26666668, g: 0.5647059, b: 0.21568628, a: 1}
+  blowupTileColor: {r: 0.9411765, g: 0.65882355, b: 0, a: 1}
+  swapNeighborTileColor: {r: 0.72156864, g: 0.20392157, b: 0, a: 1}

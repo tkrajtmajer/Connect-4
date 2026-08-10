@@ -3,12 +3,10 @@ using System.Collections.Generic;
 
 public class Player {
 
-    public Color playerColor {get;}
     public TileType?[] playerCollectedTiles = new TileType?[3];
     public bool usedPowerUpInTurn {get; set;}
     
-    public Player(Color playerColor) {
-        this.playerColor = playerColor;
+    public Player() {
         this.usedPowerUpInTurn = false;
     }
 

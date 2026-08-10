@@ -7,14 +7,9 @@ public class Board {
     Tile[,] cells;
     System.Random rng = new System.Random();
 
-    public Color boardColor {get;}
-    public Color boardBgColor {get;}
-
-    public Board(int boardWidth, int boardHeight, Color boardColor, Color boardBgColor, Dictionary<TileType, float> tileProbabilities) {
+    public Board(int boardWidth, int boardHeight, Dictionary<TileType, float> tileProbabilities) {
         this.width = boardWidth;
         this.height = boardHeight;
-        this.boardColor = boardColor;
-        this.boardBgColor = boardBgColor;
 
         this.cells = new Tile[boardWidth, boardHeight];
 
