@@ -39,16 +39,40 @@ public class Display: MonoBehaviour
                 GameObject boardTileGO = Instantiate(boardTilePrefab, new Vector3(x - (board.width/2f) + drawOffset.x, y - (board.height/2f) + drawOffset.y, 0), Quaternion.identity, parentBoard);
                 boardTileGOs[x, y] = boardTileGO;
                 
-                Color tileColor = board.GetCellType(x, y) switch {
-                    TileType.RotateBoard => preset.rotateBoardTileColor,
-                    TileType.FlipBoard => preset.flipBoardTileColor,
-                    TileType.BlowUp => preset.blowupTileColor,
-                    TileType.SwapNeighbor => preset.swapNeighborTileColor,
-                    _ => preset.normalTileColor
+                Color tileColor;
+                Color tileBgColor;
+                Sprite bgSprite;
+                
+                switch (board.GetCellType(x, y)) {
+                    case TileType.RotateBoard: 
+                        tileColor = preset.rotateBoardTileColor;
+                        tileBgColor = preset.rotateBgColor;
+                        bgSprite = preset.powerupRotate; 
+                        break;
+                    case TileType.FlipBoard: 
+                        tileColor = preset.flipBoardTileColor;
+                        tileBgColor = preset.flipBgColor;
+                        bgSprite = preset.powerupFlip; 
+                        break;
+                    case TileType.BlowUp: 
+                        tileColor = preset.blowupTileColor;
+                        tileBgColor = preset.blowupBgColor;
+                        bgSprite = preset.powerupBlowup; 
+                        break;
+                    case TileType.SwapNeighbor: 
+                        tileColor = preset.swapNeighborTileColor;
+                        tileBgColor = preset.swapBgColor;
+                        bgSprite = preset.powerupSwap; 
+                        break;
+
+                    default:
+                        tileColor = preset.normalTileColor;
+                        tileBgColor = preset.normalBgColor;
+                        bgSprite = null;
+                        break;
                 };
                 
-                boardTileGO.GetComponent<SpriteRenderer>().color = tileColor;
-                boardTileGO.GetComponentsInChildren<SpriteRenderer>()[1].color = preset.boardBgColor;
+                boardTileGO.GetComponent<TilePrefab>().SetupTile(tileColor, tileBgColor, bgSprite);
             }
         }
 
@@ -65,7 +89,8 @@ public class Display: MonoBehaviour
     }
 
     public void RedrawNormalTile(Board board, int x, int y) {
-        boardTileGOs[x, y].GetComponent<SpriteRenderer>().color = PlayerSettings.Instance.gameLookPreset.normalTileColor;
+        boardTileGOs[x, y].GetComponent<TilePrefab>().SetupTile(PlayerSettings.Instance.gameLookPreset.normalTileColor, 
+                                                                PlayerSettings.Instance.gameLookPreset.normalBgColor, null);
     }
 
     public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, int playerId, bool redrawTile) {

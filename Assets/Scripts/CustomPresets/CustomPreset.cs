@@ -10,10 +10,21 @@ public class CustomPreset : ScriptableObject
     public Color player2Color;
 
     [Header("Board")]
-    public Color boardBgColor;
+    // public Color boardBgColor;
     public Color normalTileColor;
+    public Color normalBgColor;
     public Color rotateBoardTileColor;
+    public Color rotateBgColor;
     public Color flipBoardTileColor;
+    public Color flipBgColor;
     public Color blowupTileColor;
+    public Color blowupBgColor;
     public Color swapNeighborTileColor;
+    public Color swapBgColor;
+
+    [Header("PowerUps")]
+    public Sprite powerupRotate;
+    public Sprite powerupFlip;
+    public Sprite powerupBlowup;
+    public Sprite powerupSwap;
 }
