@@ -2,8 +2,9 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.Netcode;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance { get; private set; }
 
@@ -12,12 +13,14 @@ public class GameManager : MonoBehaviour
     public int boardHeight;
     public TileProbList tileProbList = new TileProbList();
     public Dictionary<TileType, float> tileProbDict;
+    public bool isOnlineGame;
 
     Board gameBoard;
     Player player1;
     Player player2;
     int currentPlayer;
     internal GameState gameState;
+    Dictionary<ulong, int> clientIdToPlayerId = new Dictionary<ulong, int>(); // save ref between client id and player nr
 
     TileType pendingPowerUpType;
     int pendingPowerUpSlot;
@@ -61,16 +64,17 @@ public class GameManager : MonoBehaviour
         int yPos = Mathf.FloorToInt(mousePos.y);
         
         if(gameState == GameState.Playing) {
-            if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yOut)) {
-
-                CheckPowerUps(xPos, yOut, currentPlayer, out bool redrawTile);
-                DropCoin(xPos, yOut, boardHeight, currentPlayer, redrawTile);
-                CheckWinCondition(xPos, yOut);
-                UpdateCurrentPlayer();
+            if (isOnlineGame) {
+                RequestDropCoinRpc(xPos);
+            }
+            else {
+                if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yOut)) {
+                    ApplyDroppedCoin(xPos, yOut, currentPlayer);                    
+                }
             }
         }
         else if(gameState == GameState.Waiting) {
-            Debug.Log("waiting");
+            // Debug.Log("waiting");
             if(gameBoard.GetCellOccupancy(xPos, yPos) == currentPlayer) {
                 // can use the powerup, else needs valid position
                 if(pendingPowerUpType == TileType.BlowUp) {
@@ -85,6 +89,15 @@ public class GameManager : MonoBehaviour
                 GetPlayer(currentPlayer).usedPowerUpInTurn = true;
             }
         }
+    }
+
+    void ApplyDroppedCoin(int xPos, int yPos, int playerId) {
+        CheckPowerUps(xPos, yPos, playerId, out bool redrawTile);
+        DropCoin(xPos, yPos, boardHeight, playerId, redrawTile);
+        CheckWinCondition(xPos, yPos);
+        UpdateCurrentPlayer();
+
+        // Debug.Log("current player " + currentPlayer);
     }
 
     public void CheckPowerUps(int xPos, int yPos, int playerId, out bool redrawTile) {
@@ -244,6 +257,44 @@ public class GameManager : MonoBehaviour
 
     void EndGame(int winPlayerId) {
         Debug.Log("victory player " + winPlayerId);
+    }
+
+    // ~~~~~~~~ NETWORK FUNCTIONS ~~~~~~~~~
+
+    public override void OnNetworkSpawn() {
+        if (IsServer) NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+    }
+
+    void OnClientConnected(ulong clientId) {
+        int playerId = clientIdToPlayerId.Count == 0 ? 1 : 2;
+        clientIdToPlayerId[clientId] = playerId;
+
+        // Debug.Log("gave player " + clientId + " id " + playerId);
+    }
+
+    int GetPlayerIdForClient(ulong clientId) {
+        if(!clientIdToPlayerId.ContainsKey(clientId)) return -1;
+        
+        return clientIdToPlayerId[clientId];
+    }
+
+    // server checks if a coin can be placed, if not return, if yes send move to clients to update board state locally
+    [Rpc(SendTo.Server)]
+    void RequestDropCoinRpc(int xPos, RpcParams rpcParams = default) {
+        // get playerid from server
+        int playerId = GetPlayerIdForClient(rpcParams.Receive.SenderClientId);
+
+        if (playerId != currentPlayer) return;
+        if (!gameBoard.PlaceCoin(xPos, playerId, out int yPos)) return;
+
+        ApplyDropRpc(xPos, yPos, playerId);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ApplyDropRpc(int xPos, int yPos, int playerId) {
+        if(!IsServer) gameBoard.PlaceCoin(xPos, playerId, out int _); // clients mirror server if coin was placed
+
+        ApplyDroppedCoin(xPos, yPos, playerId);
     }
     
 }
