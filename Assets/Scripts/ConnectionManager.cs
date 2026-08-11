@@ -34,7 +34,7 @@ public class ConnectionManager : MonoBehaviour {
 
     // start new connection as host, returns the join code
     public async Task<string> StartGameHost() {
-        var options = new SessionOptions{MaxPlayers = 2}.WithRelayNetwork();
+        var options = new SessionOptions{MaxPlayers = 2}.WithRelayNetwork().WithNetworkOptions(new NetworkOptions{RelayProtocol = RelayProtocol.WSS});
 
         var session = await MultiplayerService.Instance.CreateSessionAsync(options);
         Debug.Log($"Session {session.Id} created! Join code: {session.Code}");
@@ -44,7 +44,9 @@ public class ConnectionManager : MonoBehaviour {
 
     public async Task<bool> JoinGameClient(string joinCode) {
         try {
-            currentSession = await MultiplayerService.Instance.JoinSessionByCodeAsync(joinCode);
+            var options = new JoinSessionOptions{}.WithNetworkOptions(new NetworkOptions{RelayProtocol = RelayProtocol.WSS});
+
+            currentSession = await MultiplayerService.Instance.JoinSessionByCodeAsync(joinCode, options);
             Debug.Log("Created session " + currentSession);
             return true;
         }
