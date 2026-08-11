@@ -288,10 +288,13 @@ public class GameManager : NetworkBehaviour
 
     public override void OnNetworkSpawn() {
         if (IsServer) {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            // NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
             InitializeGame();
-            TileType[] types = gameBoard.GetTileTypes();
+
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds) {
+                OnClientConnected(clientId);
+            }
         }
     }
 
