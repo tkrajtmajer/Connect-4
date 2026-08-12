@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 
 public class MenuOnline : MonoBehaviour
 {
-    public TMP_Text joinCodeText;
+    public TMP_InputField joinCodeText;
     public TMP_InputField joinCodeEnterField;
     public GameObject playGameButton;
 
     void Start() {
-        playGameButton.SetActive(false);
+        if(playGameButton != null) playGameButton.SetActive(false);
     }
 
     void OnEnable() {
@@ -35,7 +35,7 @@ public class MenuOnline : MonoBehaviour
 
     void HandleClientConnected(ulong _) {
         if (NetworkManager.Singleton.IsHost && NetworkManager.Singleton.ConnectedClientsList.Count >= 2) {
-            playGameButton.SetActive(true);
+            if(playGameButton != null) playGameButton.SetActive(true);
         }
     }
 
