@@ -119,51 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &76068392
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 76068393}
-  - component: {fileID: 76068394}
-  m_Layer: 0
-  m_Name: settings
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &76068393
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 76068392}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &76068394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 76068392}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2aaa5e5b312e43736bfc8e1cc5fccd27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerSettings
-  gameLookPreset: {fileID: 11400000, guid: b500a3e7fc8f56eba863bc7e549cf4e2, type: 2}
 --- !u!1 &309019747
 GameObject:
   m_ObjectHideFlags: 0
@@ -938,6 +893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 640f6454105c5705ba2171eb52ed12c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  ShowTopMostFoldoutHeaderGroup: 1
   boardWidth: 7
   boardHeight: 6
   tileProbList:
@@ -952,6 +908,7 @@ MonoBehaviour:
       tileProbability: 1
     - tileType: 4
       tileProbability: 1
+  isOnlineGame: 0
 --- !u!4 &1352289311
 Transform:
   m_ObjectHideFlags: 0
@@ -1602,4 +1559,3 @@ SceneRoots:
   - {fileID: 1114898567}
   - {fileID: 1013462242}
   - {fileID: 1646399246}
-  - {fileID: 76068393}
