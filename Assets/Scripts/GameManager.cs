@@ -21,6 +21,7 @@ public class GameManager : NetworkBehaviour
     int currentPlayer;
     internal GameState gameState;
     Dictionary<ulong, int> clientIdToPlayerId = new Dictionary<ulong, int>(); // save ref between client id and player nr
+    System.Random rng = new System.Random();
 
     TileType pendingPowerUpType;
     int pendingPowerUpSlot;
@@ -50,7 +51,7 @@ public class GameManager : NetworkBehaviour
         gameBoard = new Board(boardWidth, boardHeight, tileProbDict);
         player1 = new Player();
         player2 = new Player();
-        currentPlayer = 1; // TODO: random
+        currentPlayer = rng.Next(1, 3);
         gameState = GameState.Playing;
     }
 
