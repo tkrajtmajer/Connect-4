@@ -40,6 +40,7 @@ public class GameManager : NetworkBehaviour
         if(!isOnlineGame) {
             InitializeGame();
             Display.Instance.DrawFullBoard(gameBoard);
+            HUD.Instance.UpdateCurrPlayer(currentPlayer);
         }
     }
 
@@ -270,6 +271,7 @@ public class GameManager : NetworkBehaviour
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
         GetPlayer(currentPlayer).usedPowerUpInTurn = false;
+        HUD.Instance.UpdateCurrPlayer(currentPlayer);
     }
 
     Player GetPlayer(int playerId) {
@@ -321,6 +323,7 @@ public class GameManager : NetworkBehaviour
         gameState = initGameState;
 
         Display.Instance.DrawFullBoard(gameBoard);
+        HUD.Instance.UpdateCurrPlayer(currentPlayer);
     }
 
     // server checks if a coin can be placed, if not return, if yes send move to clients to update board state locally
