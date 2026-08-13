@@ -228,13 +228,16 @@ public class GameManager : NetworkBehaviour
     void HandleSwap(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
 
         gameBoard.PickRandomNeighbor(centerX, centerY, playerId, out int targetX, out int targetY);
-        DoSwap(type, slotIdx, playerId, targetX, targetY);
+        StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
     }
 
-    void DoSwap(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
+    IEnumerator DoSwap(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
         gameBoard.RandomSwapNeighbor(targetX, targetY, playerId);
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
+        
+        yield return StartCoroutine(Display.Instance.SwapColor(gameBoard, targetX, targetY, playerId));
+        
         RedrawBoard();
     }
 
@@ -382,7 +385,7 @@ public class GameManager : NetworkBehaviour
 
     [Rpc(SendTo.ClientsAndHost)]
     void ApplySwapRpc(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
-        DoSwap(type, slotIdx, playerId, targetX, targetY);
+        StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
     }
     
 }

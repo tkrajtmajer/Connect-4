@@ -19,6 +19,7 @@ public class Display: MonoBehaviour
     public float boardFlipSpeed;
     public GameObject blowUpPrefab;
     public float blowupTime;
+    public float swapSpeed;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -178,11 +179,63 @@ public class Display: MonoBehaviour
 
                 if(centerX + i == centerX && centerY + j == centerY) continue;
 
-                Instantiate(blowUpPrefab, new Vector3(centerX + i - (board.width/2f) + drawOffset.x, centerY + j - (board.height/2f) + drawOffset.y, 0), Quaternion.identity, parentCoins);
+                float x = centerX + i - (board.width/2f) + drawOffset.x;
+                float y = centerY + j - (board.height/2f) + drawOffset.y;
+                Instantiate(blowUpPrefab, new Vector3(x, y, 0), Quaternion.identity, parentCoins);
                 // blowUpPrefabs.Add(blowupGO);
             }
         }
 
         yield return new WaitForSeconds(blowupTime);
+    }
+
+    public IEnumerator SwapColor(Board board, int targetX, int targetY, int playerId) {
+
+        float x = targetX - (board.width/2f) + drawOffset.x;
+        float y = targetY - (board.height/2f) + drawOffset.y;
+
+        CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
+        Color startColor = playerId == 2 ? preset.player1Color : preset.player2Color;
+        Color endColor = playerId == 1 ? preset.player1Color : preset.player2Color;
+        Sprite startSprite = playerId == 2 ? preset.player1Sprite : preset.player2Sprite;
+        Sprite endSprite = playerId == 1 ? preset.player1Sprite : preset.player2Sprite;
+
+        // start obj
+        GameObject fromGO = Instantiate(playerCoinPrefab, new Vector3(x, y, 0), Quaternion.identity, parentCoins);
+        SpriteRenderer fromSr = fromGO.GetComponent<SpriteRenderer>();
+        fromSr.sprite = startSprite;
+        fromSr.color = startColor;
+        fromSr.sortingOrder = 1;
+
+        // end obj
+        GameObject toGO = Instantiate(playerCoinPrefab, new Vector3(x, y, 0), Quaternion.identity, parentCoins);
+        SpriteRenderer toSr = toGO.GetComponent<SpriteRenderer>();
+        toSr.sprite = endSprite;
+        Color endColorTransparent = endColor;
+        endColorTransparent.a = 0f;
+        toSr.color = endColorTransparent;
+        toSr.sortingOrder = 1;
+
+        float t = 0;
+
+        // fade from start to end game object
+        while (t < swapSpeed) {
+            t += Time.deltaTime;
+            
+            float lerp = t / swapSpeed;
+
+            Color fromColor = startColor;
+            fromColor.a = 1f - lerp;
+            fromSr.color = fromColor;
+
+            Color toColor = endColor;
+            toColor.a = lerp;
+            toSr.color = toColor;
+
+            yield return null;
+        }
+
+        Destroy(fromGO);
+        Destroy(toGO);
     }
 }
