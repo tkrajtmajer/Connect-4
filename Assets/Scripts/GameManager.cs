@@ -21,6 +21,7 @@ public class GameManager : NetworkBehaviour
     int currentPlayer;
     internal GameState gameState;
     Dictionary<ulong, int> clientIdToPlayerId = new Dictionary<ulong, int>(); // save ref between client id and player nr
+    System.Random rng = new System.Random();
 
     TileType pendingPowerUpType;
     int pendingPowerUpSlot;
@@ -40,6 +41,7 @@ public class GameManager : NetworkBehaviour
         if(!isOnlineGame) {
             InitializeGame();
             Display.Instance.DrawFullBoard(gameBoard);
+            HUD.Instance.UpdateCurrPlayer(currentPlayer);
         }
     }
 
@@ -49,7 +51,7 @@ public class GameManager : NetworkBehaviour
         gameBoard = new Board(boardWidth, boardHeight, tileProbDict);
         player1 = new Player();
         player2 = new Player();
-        currentPlayer = 1; // TODO: random
+        currentPlayer = rng.Next(1, 3);
         gameState = GameState.Playing;
     }
 
@@ -89,7 +91,7 @@ public class GameManager : NetworkBehaviour
                 }
                 else {
                     if(pendingPowerUpType == TileType.BlowUp) {
-                        HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
+                        StartCoroutine(HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos));
                     }
                     else if(pendingPowerUpType == TileType.SwapNeighbor) {
                         HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
@@ -211,25 +213,31 @@ public class GameManager : NetworkBehaviour
     }
 
     // TODO: add way to undo waiting condition
-    void HandleBlowup(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
+    IEnumerator HandleBlowup(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
         // add way to blow up coins either w animation or code(?)
 
         gameBoard.BlowUpCells(centerX, centerY);
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
+
+        yield return StartCoroutine(Display.Instance.BlowUpTiles(gameBoard, centerX, centerY));
+
         RedrawBoard();
     }
 
     void HandleSwap(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
 
         gameBoard.PickRandomNeighbor(centerX, centerY, playerId, out int targetX, out int targetY);
-        DoSwap(type, slotIdx, playerId, targetX, targetY);
+        StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
     }
 
-    void DoSwap(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
+    IEnumerator DoSwap(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
         gameBoard.RandomSwapNeighbor(targetX, targetY, playerId);
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
+        
+        yield return StartCoroutine(Display.Instance.SwapColor(gameBoard, targetX, targetY, playerId));
+        
         RedrawBoard();
     }
 
@@ -270,6 +278,7 @@ public class GameManager : NetworkBehaviour
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
         GetPlayer(currentPlayer).usedPowerUpInTurn = false;
+        HUD.Instance.UpdateCurrPlayer(currentPlayer);
     }
 
     Player GetPlayer(int playerId) {
@@ -321,6 +330,7 @@ public class GameManager : NetworkBehaviour
         gameState = initGameState;
 
         Display.Instance.DrawFullBoard(gameBoard);
+        HUD.Instance.UpdateCurrPlayer(currentPlayer);
     }
 
     // server checks if a coin can be placed, if not return, if yes send move to clients to update board state locally
@@ -366,7 +376,7 @@ public class GameManager : NetworkBehaviour
                 StartCoroutine(HandleFlip(type, slotIdx, playerId));
                 break;
             case TileType.BlowUp:
-                HandleBlowup(type, slotIdx, playerId, centerX, centerY);
+                StartCoroutine(HandleBlowup(type, slotIdx, playerId, centerX, centerY));
                 break;
             default:
                 break;
@@ -375,7 +385,7 @@ public class GameManager : NetworkBehaviour
 
     [Rpc(SendTo.ClientsAndHost)]
     void ApplySwapRpc(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
-        DoSwap(type, slotIdx, playerId, targetX, targetY);
+        StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
     }
     
 }

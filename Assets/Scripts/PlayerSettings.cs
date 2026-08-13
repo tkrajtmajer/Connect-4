@@ -12,6 +12,7 @@ public class PlayerSettings : MonoBehaviour
         }
         else {
             Instance = this;
-        } // TODO: also make it persist across scenes, move to first scene
+            DontDestroyOnLoad(this.gameObject);
+        } 
     }
 }

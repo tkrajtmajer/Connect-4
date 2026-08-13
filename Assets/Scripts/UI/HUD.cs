@@ -1,9 +1,13 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System;
+using TMPro;
 
 public class HUD: MonoBehaviour {
 
     public static HUD Instance { get; private set; }
+
+    public TMP_Text currentPlayerText;
 
     [Header("PowerUps")]
     public GameObject powerUpPrefab;
@@ -60,5 +64,9 @@ public class HUD: MonoBehaviour {
         cancelPowerUpPrefab.SetActive(false);
         // GameManager.Instance.gameState = GameState.Playing;
         CancelledPowerup?.Invoke();
+    }
+
+    public void UpdateCurrPlayer(int currPlayer) {
+        currentPlayerText.text = "Turn player " + currPlayer;
     }
 }
