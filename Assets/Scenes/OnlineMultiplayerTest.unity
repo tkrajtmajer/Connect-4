@@ -546,6 +546,8 @@ MonoBehaviour:
   playerCoinPrefab: {fileID: 5311746332918359496, guid: dcd5f868a7e7cdfd0a3808527de61715, type: 3}
   boardRotationSpeed: 0.5
   boardFlipSpeed: 0.5
+  blowUpPrefab: {fileID: 6556062340647547171, guid: dc3be584e81fb256b86e0d01523ff247, type: 3}
+  blowupTime: 0.5
 --- !u!114 &1352289313
 MonoBehaviour:
   m_ObjectHideFlags: 0

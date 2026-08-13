@@ -91,7 +91,7 @@ public class GameManager : NetworkBehaviour
                 }
                 else {
                     if(pendingPowerUpType == TileType.BlowUp) {
-                        HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
+                        StartCoroutine(HandleBlowup(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos));
                     }
                     else if(pendingPowerUpType == TileType.SwapNeighbor) {
                         HandleSwap(pendingPowerUpType, pendingPowerUpSlot, pendingPowerUpPlayerId, xPos, yPos);
@@ -213,12 +213,15 @@ public class GameManager : NetworkBehaviour
     }
 
     // TODO: add way to undo waiting condition
-    void HandleBlowup(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
+    IEnumerator HandleBlowup(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
         // add way to blow up coins either w animation or code(?)
 
         gameBoard.BlowUpCells(centerX, centerY);
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
+
+        yield return StartCoroutine(Display.Instance.BlowUpTiles(gameBoard, centerX, centerY));
+
         RedrawBoard();
     }
 
@@ -370,7 +373,7 @@ public class GameManager : NetworkBehaviour
                 StartCoroutine(HandleFlip(type, slotIdx, playerId));
                 break;
             case TileType.BlowUp:
-                HandleBlowup(type, slotIdx, playerId, centerX, centerY);
+                StartCoroutine(HandleBlowup(type, slotIdx, playerId, centerX, centerY));
                 break;
             default:
                 break;

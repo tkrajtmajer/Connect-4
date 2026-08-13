@@ -17,6 +17,8 @@ public class Display: MonoBehaviour
     [Header("Powerups Setup")]
     public float boardRotationSpeed;
     public float boardFlipSpeed;
+    public GameObject blowUpPrefab;
+    public float blowupTime;
 
     void Awake() {
         if (Instance != null && Instance != this) {
@@ -164,5 +166,23 @@ public class Display: MonoBehaviour
 
     public void ResetFlip() {
         boardGO.transform.localScale = new Vector3(1, 1, 1);
+    }
+
+    public IEnumerator BlowUpTiles(Board board, int centerX, int centerY) {
+        // List<GameObject> blowUpPrefabs = new List<GameObject>();
+
+        for(int i = -1; i < 2; i++) {
+            for(int j = -1; j < 2; j++) {
+                if(centerX + i < 0 || centerX + i >= board.width) continue;
+                if(centerY + j < 0 || centerY + j >= board.height) continue;
+
+                if(centerX + i == centerX && centerY + j == centerY) continue;
+
+                Instantiate(blowUpPrefab, new Vector3(centerX + i - (board.width/2f) + drawOffset.x, centerY + j - (board.height/2f) + drawOffset.y, 0), Quaternion.identity, parentCoins);
+                // blowUpPrefabs.Add(blowupGO);
+            }
+        }
+
+        yield return new WaitForSeconds(blowupTime);
     }
 }

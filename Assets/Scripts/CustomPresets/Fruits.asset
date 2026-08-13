@@ -18,14 +18,14 @@ MonoBehaviour:
   player2Color: {r: 1, g: 1, b: 1, a: 1}
   normalTileColor: {r: 0.92156863, g: 0.7921569, b: 0.34509805, a: 1}
   normalBgColor: {r: 0.43137255, g: 0.3529412, b: 0.23529412, a: 1}
-  rotateBoardTileColor: {r: 0.34117648, g: 0.6509804, b: 0.21176471, a: 1}
-  rotateBgColor: {r: 0.14117648, g: 0.34901962, b: 0.15686275, a: 1}
-  flipBoardTileColor: {r: 0.34117648, g: 0.6509804, b: 0.21176471, a: 1}
-  flipBgColor: {r: 0.14117648, g: 0.34901962, b: 0.15686275, a: 1}
-  blowupTileColor: {r: 0.34117648, g: 0.6509804, b: 0.21176471, a: 1}
-  blowupBgColor: {r: 0.14117648, g: 0.34901962, b: 0.15686275, a: 1}
-  swapNeighborTileColor: {r: 0.34117648, g: 0.6509804, b: 0.21176471, a: 1}
-  swapBgColor: {r: 0.14117648, g: 0.34901962, b: 0.15686275, a: 1}
+  rotateBoardTileColor: {r: 0.92156863, g: 0.7921569, b: 0.34509805, a: 1}
+  rotateBgColor: {r: 0.43137255, g: 0.3529412, b: 0.23529412, a: 1}
+  flipBoardTileColor: {r: 0.92156863, g: 0.7921569, b: 0.34509805, a: 1}
+  flipBgColor: {r: 0.43137255, g: 0.3529412, b: 0.23529412, a: 1}
+  blowupTileColor: {r: 0.92156863, g: 0.7921569, b: 0.34509805, a: 1}
+  blowupBgColor: {r: 0.43137255, g: 0.3529412, b: 0.23529412, a: 1}
+  swapNeighborTileColor: {r: 0.92156863, g: 0.7921569, b: 0.34509805, a: 1}
+  swapBgColor: {r: 0.43137255, g: 0.3529412, b: 0.23529412, a: 1}
   powerupRotate: {fileID: 21300000, guid: 9fd7f26fcfe27ac1783d6dafc9d70e8b, type: 3}
   powerupFlip: {fileID: 21300000, guid: a0cc675dfe75dd00689595c24c5ea559, type: 3}
   powerupBlowup: {fileID: 21300000, guid: ccf1da53b4708501ca6ac5c56ec3be7e, type: 3}
