@@ -21,7 +21,7 @@ public class HUD: MonoBehaviour {
     GameObject[] player1SlotItems;
     GameObject[] player2SlotItems;
 
-    public event Action CancelledPowerup;
+    // public event Action CancelledPowerup;
 
     [Header("Game Over")]
     public GameObject gameOverScreen;
@@ -71,7 +71,8 @@ public class HUD: MonoBehaviour {
     public void HideCancelPowerUp() {
         cancelPowerUpPrefab.SetActive(false);
         // GameManager.Instance.gameState = GameState.Playing;
-        CancelledPowerup?.Invoke();
+        // CancelledPowerup?.Invoke();
+        GameManager.Instance.HandleCancelPowerup();
     }
 
     public void UpdateCurrPlayer(string text, int currPlayer) {

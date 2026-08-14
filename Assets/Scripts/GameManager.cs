@@ -59,12 +59,12 @@ public class GameManager : NetworkBehaviour
 
     void OnEnable() {
         BoardInputHandler.Instance.MouseClicked += HandlePlayerInput;
-        HUD.Instance.CancelledPowerup += HandleCancelPowerup;
+        // HUD.Instance.CancelledPowerup += HandleCancelPowerup;
     }
 
     void OnDisable() {
         BoardInputHandler.Instance.MouseClicked -= HandlePlayerInput;
-        HUD.Instance.CancelledPowerup -= HandleCancelPowerup;
+        // HUD.Instance.CancelledPowerup -= HandleCancelPowerup;
     }
 
     void HandlePlayerInput(Vector2 mousePos) {
@@ -182,7 +182,8 @@ public class GameManager : NetworkBehaviour
                 pendingPowerUpType = TileType.BlowUp;
                 pendingPowerUpSlot = slotIdx;
                 pendingPowerUpPlayerId = playerId;
-                gameState = GameState.Waiting; // wait for additional input
+                if(isOnlineGame) UpdateStatusRpc(GameState.Waiting);
+                else gameState = GameState.Waiting; // wait for additional input
                 HUD.Instance.EnableCancellingPowerUp();
                 break;
             
@@ -190,7 +191,8 @@ public class GameManager : NetworkBehaviour
                 pendingPowerUpType = TileType.SwapNeighbor;
                 pendingPowerUpSlot = slotIdx;
                 pendingPowerUpPlayerId = playerId;
-                gameState = GameState.Waiting; // wait for additional input
+                if(isOnlineGame) UpdateStatusRpc(GameState.Waiting);
+                else gameState = GameState.Waiting; // wait for additional input
                 HUD.Instance.EnableCancellingPowerUp();
                 break;
 
@@ -310,9 +312,14 @@ public class GameManager : NetworkBehaviour
         return playerId == 1 ? player1 : player2;
     }
 
-    void HandleCancelPowerup() {
+    public int GetCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public void HandleCancelPowerup() {
         Debug.Log("cancelled powerup");
-        gameState = GameState.Playing;
+        if(isOnlineGame) UpdateStatusRpc(GameState.Playing);
+        else gameState = GameState.Playing;
     }
 
     void EndGame(int winPlayerId) {
@@ -428,6 +435,11 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void ApplySwapRpc(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
         StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void UpdateStatusRpc(GameState state) {
+        gameState = state;
     }
 
     [Rpc(SendTo.Server)]
