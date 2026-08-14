@@ -41,7 +41,7 @@ public class GameManager : NetworkBehaviour
         if(!isOnlineGame) {
             InitializeGame();
             Display.Instance.DrawFullBoard(gameBoard);
-            HUD.Instance.UpdateCurrPlayer(currentPlayer);
+            HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
         }
     }
 
@@ -133,6 +133,7 @@ public class GameManager : NetworkBehaviour
 
     void DropCoin(int xPos, int yPos, int yInit, int playerId, bool redrawTile) {
         Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, playerId, redrawTile);
+        SFXManager.Instance.PlayClip(SFXManager.Instance.coinDropClip);
     }
 
     void CheckWinCondition(int xPos, int yPos) {
@@ -195,6 +196,7 @@ public class GameManager : NetworkBehaviour
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
 
+        SFXManager.Instance.PlayClip(SFXManager.Instance.rotateClip); 
         yield return StartCoroutine(Display.Instance.RotateBoard());
 
         Display.Instance.ResetRotation();
@@ -206,6 +208,7 @@ public class GameManager : NetworkBehaviour
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
 
+        SFXManager.Instance.PlayClip(SFXManager.Instance.flipClip); 
         yield return StartCoroutine(Display.Instance.FlipBoard());
 
         Display.Instance.ResetFlip();
@@ -220,6 +223,7 @@ public class GameManager : NetworkBehaviour
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
 
+        SFXManager.Instance.PlayClip(SFXManager.Instance.blowupClip); 
         yield return StartCoroutine(Display.Instance.BlowUpTiles(gameBoard, centerX, centerY));
 
         RedrawBoard();
@@ -236,6 +240,7 @@ public class GameManager : NetworkBehaviour
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
         
+        SFXManager.Instance.PlayClip(SFXManager.Instance.swapClip);
         yield return StartCoroutine(Display.Instance.SwapColor(gameBoard, targetX, targetY, playerId));
         
         RedrawBoard();
@@ -278,7 +283,7 @@ public class GameManager : NetworkBehaviour
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
         GetPlayer(currentPlayer).usedPowerUpInTurn = false;
-        HUD.Instance.UpdateCurrPlayer(currentPlayer);
+        HUD.Instance.UpdateCurrPlayer("Turn player ", currentPlayer);
     }
 
     Player GetPlayer(int playerId) {
@@ -330,7 +335,7 @@ public class GameManager : NetworkBehaviour
         gameState = initGameState;
 
         Display.Instance.DrawFullBoard(gameBoard);
-        HUD.Instance.UpdateCurrPlayer(currentPlayer);
+        HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
     }
 
     // server checks if a coin can be placed, if not return, if yes send move to clients to update board state locally
