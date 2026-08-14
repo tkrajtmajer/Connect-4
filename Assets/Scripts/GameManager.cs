@@ -19,7 +19,7 @@ public class GameManager : NetworkBehaviour
     Player player1;
     Player player2;
     int currentPlayer;
-    internal GameState gameState;
+    public GameState gameState;
     Dictionary<ulong, int> clientIdToPlayerId = new Dictionary<ulong, int>(); // save ref between client id and player nr
     System.Random rng = new System.Random();
 
@@ -311,6 +311,7 @@ public class GameManager : NetworkBehaviour
     }
 
     void HandleCancelPowerup() {
+        Debug.Log("cancelled powerup");
         gameState = GameState.Playing;
     }
 
