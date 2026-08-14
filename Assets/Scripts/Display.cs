@@ -91,12 +91,12 @@ public class Display: MonoBehaviour
         for (int i = parent.childCount - 1; i >= 0; i--) Destroy(parent.GetChild(i).gameObject);
     }
 
-    public void RedrawNormalTile(Board board, int x, int y) {
+    public void RedrawNormalTile(int x, int y) {
         boardTileGOs[x, y].GetComponent<TilePrefab>().SetupTile(PlayerSettings.Instance.gameLookPreset.normalTileColor, 
                                                                 PlayerSettings.Instance.gameLookPreset.normalBgColor, null);
     }
 
-    public void DrawCoin(Board board, int xPos, int initYPos, int finalYPos, int playerId, bool redrawTile) {
+    public IEnumerator DrawCoin(Board board, int xPos, int initYPos, int finalYPos, int playerId) {
         float xPosF = xPos - board.width/2f + drawOffset.x;
         float initYPosF = initYPos - board.height/2f + drawOffset.y;
         float finalYPosF = finalYPos - board.height/2f + drawOffset.y;
@@ -110,10 +110,10 @@ public class Display: MonoBehaviour
         Sprite playerSprite = playerId == 1 ? preset.player1Sprite : preset.player2Sprite;
         coinGO.GetComponent<SpriteRenderer>().sprite = playerSprite;
 
-        StartCoroutine(DropCoin(coinGO, finalYPosF, board, xPosF, redrawTile, xPos, finalYPos));
+        yield return StartCoroutine(DropCoin(coinGO, finalYPosF, board, xPosF, xPos, finalYPos));
     }
 
-    IEnumerator DropCoin(GameObject coinGO, float finalYPosF, Board board, float xPosF, bool redrawTile, int x, int y) {
+    IEnumerator DropCoin(GameObject coinGO, float finalYPosF, Board board, float xPosF, int x, int y) {
         float velocity = 0;
         Vector3 currentPos = coinGO.transform.position;
 
@@ -127,8 +127,6 @@ public class Display: MonoBehaviour
 
             yield return null;
         }
-
-        if(redrawTile) RedrawNormalTile(board, x, y);
     }
     
     public IEnumerator RotateBoard() {
