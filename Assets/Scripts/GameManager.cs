@@ -316,6 +316,22 @@ public class GameManager : NetworkBehaviour
 
     void EndGame(int winPlayerId) {
         Debug.Log("victory player " + winPlayerId);
+
+        Time.timeScale = 0f; // pause game until it is reset
+        gameState = GameState.GameOver;
+        HUD.Instance.ShowWinScreen(winPlayerId);
+    }
+
+    public void RestartGame() {
+        if(isOnlineGame) {
+            RequestRestartGameRpc();
+        }
+        else {
+            InitializeGame();
+            RedrawBoard();
+            HUD.Instance.ResetHUD();
+            HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
+        }
     }
 
     // ~~~~~~~~ NETWORK FUNCTIONS ~~~~~~~~~
@@ -351,8 +367,10 @@ public class GameManager : NetworkBehaviour
         player2 = new Player();
         currentPlayer = initCurrentPlayer;
         gameState = initGameState;
+        Time.timeScale = 1f;
 
-        Display.Instance.DrawFullBoard(gameBoard);
+        RedrawBoard();
+        HUD.Instance.ResetHUD();
         HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
     }
 
@@ -409,6 +427,17 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void ApplySwapRpc(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
         StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
+    }
+
+    [Rpc(SendTo.Server)]
+    void RequestRestartGameRpc() {
+        // reinitialize on server and send to both players
+        InitializeGame();
+        TileType[] types = gameBoard.GetTileTypes();
+
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds) {
+            SendInitialGameStateRpc(types, currentPlayer, gameState, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        }
     }
     
 }
