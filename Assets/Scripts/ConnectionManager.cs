@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Unity.Services.Core;
 using Unity.Services.Authentication;
 using Unity.Services.Multiplayer;
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class ConnectionManager : MonoBehaviour {
 
@@ -30,16 +32,18 @@ public class ConnectionManager : MonoBehaviour {
 	    catch (Exception e) {
 	        Debug.LogException(e);
 	    }
+
+        NetworkManager.Singleton.OnClientDisconnectCallback += HandleDisconnect;
     }
 
     // start new connection as host, returns the join code
     public async Task<string> StartGameHost() {
         var options = new SessionOptions{MaxPlayers = 2}.WithRelayNetwork().WithNetworkOptions(new NetworkOptions{RelayProtocol = RelayProtocol.WSS});
 
-        var session = await MultiplayerService.Instance.CreateSessionAsync(options);
-        Debug.Log($"Session {session.Id} created! Join code: {session.Code}");
+        currentSession = await MultiplayerService.Instance.CreateSessionAsync(options);
+        Debug.Log($"Session {currentSession.Id} created! Join code: {currentSession.Code}");
 
-        return session.Code;
+        return currentSession.Code;
     }
 
     public async Task<bool> JoinGameClient(string joinCode) {
@@ -54,5 +58,19 @@ public class ConnectionManager : MonoBehaviour {
 	        Debug.LogException(e);
             return false;
 	    }
+    }
+
+    public async Task LeaveSession() {
+        try {
+            await currentSession.LeaveAsync();
+        }
+        catch (SessionException e) {
+            Debug.Log(e);
+        }
+    } 
+
+    void HandleDisconnect(ulong clientId) {
+        currentSession = null;
+        SceneManager.LoadScene("MainMenu");
     }
 }

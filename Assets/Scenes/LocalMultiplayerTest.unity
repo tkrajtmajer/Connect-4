@@ -556,11 +556,50 @@ PrefabInstance:
       propertyPath: m_Name
       value: HUD
       objectReference: {fileID: 0}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1207988147}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: QuitToMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HUD, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8203717910911909339, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+--- !u!114 &1207988147 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2481044662172563279, guid: c5810a7a3af98005ca38e1cc4e53b84d, type: 3}
+  m_PrefabInstance: {fileID: 1207988146}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cb4880c0f71f63e093c9939d06048ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HUD
 --- !u!1 &1352289309
 GameObject:
   m_ObjectHideFlags: 0

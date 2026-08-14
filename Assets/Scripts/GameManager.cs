@@ -40,7 +40,8 @@ public class GameManager : NetworkBehaviour
     {
         if(!isOnlineGame) {
             InitializeGame();
-            Display.Instance.DrawFullBoard(gameBoard);
+            RedrawBoard();
+            HUD.Instance.ResetHUD();
             HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
         }
     }
@@ -53,6 +54,7 @@ public class GameManager : NetworkBehaviour
         player2 = new Player();
         currentPlayer = rng.Next(1, 3);
         gameState = GameState.Playing;
+        Time.timeScale = 1f;
     }
 
     void OnEnable() {
@@ -67,6 +69,8 @@ public class GameManager : NetworkBehaviour
 
     void HandlePlayerInput(Vector2 mousePos) {
 
+        if(gameState == GameState.Animation || gameState == GameState.GameOver) return;
+
         mousePos += new Vector2(gameBoard.width / 2f, gameBoard.height / 2f);
 
         int xPos = Mathf.FloorToInt(mousePos.x);
@@ -78,7 +82,7 @@ public class GameManager : NetworkBehaviour
             }
             else {
                 if (gameBoard.PlaceCoin(xPos, currentPlayer, out int yOut)) {
-                    ApplyDroppedCoin(xPos, yOut, currentPlayer);                    
+                    StartCoroutine(ApplyDroppedCoin(xPos, yOut, currentPlayer));
                 }
             }
         }
@@ -103,9 +107,13 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void ApplyDroppedCoin(int xPos, int yPos, int playerId) {
+    IEnumerator ApplyDroppedCoin(int xPos, int yPos, int playerId) {
+        gameState = GameState.Animation;
+        yield return StartCoroutine(DropCoin(xPos, yPos, boardHeight, playerId));
+        gameState = GameState.Playing;
+
         CheckPowerUps(xPos, yPos, playerId, out bool redrawTile);
-        DropCoin(xPos, yPos, boardHeight, playerId, redrawTile);
+        if(redrawTile) Display.Instance.RedrawNormalTile(xPos, yPos);
         CheckWinCondition(xPos, yPos);
         UpdateCurrentPlayer();
 
@@ -131,9 +139,9 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void DropCoin(int xPos, int yPos, int yInit, int playerId, bool redrawTile) {
-        Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, playerId, redrawTile);
+    IEnumerator DropCoin(int xPos, int yPos, int yInit, int playerId) {
         SFXManager.Instance.PlayClip(SFXManager.Instance.coinDropClip);
+        yield return StartCoroutine(Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, playerId));
     }
 
     void CheckWinCondition(int xPos, int yPos) {
@@ -197,10 +205,13 @@ public class GameManager : NetworkBehaviour
         UpdateHUD(type, slotIdx, playerId);
 
         SFXManager.Instance.PlayClip(SFXManager.Instance.rotateClip); 
+        gameState = GameState.Animation;
         yield return StartCoroutine(Display.Instance.RotateBoard());
 
         Display.Instance.ResetRotation();
         RedrawBoard();
+        RedropCoins();
+        gameState = GameState.Playing;
     }
 
     IEnumerator HandleFlip(TileType type, int slotIdx, int playerId) {
@@ -209,10 +220,13 @@ public class GameManager : NetworkBehaviour
         UpdateHUD(type, slotIdx, playerId);
 
         SFXManager.Instance.PlayClip(SFXManager.Instance.flipClip); 
+        gameState = GameState.Animation;
         yield return StartCoroutine(Display.Instance.FlipBoard());
 
         Display.Instance.ResetFlip();
         RedrawBoard();
+        RedropCoins();
+        gameState = GameState.Playing;
     }
 
     // TODO: add way to undo waiting condition
@@ -224,9 +238,12 @@ public class GameManager : NetworkBehaviour
         UpdateHUD(type, slotIdx, playerId);
 
         SFXManager.Instance.PlayClip(SFXManager.Instance.blowupClip); 
+        gameState = GameState.Animation;
         yield return StartCoroutine(Display.Instance.BlowUpTiles(gameBoard, centerX, centerY));
 
         RedrawBoard();
+        RedropCoins();
+        gameState = GameState.Playing;
     }
 
     void HandleSwap(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
@@ -241,9 +258,12 @@ public class GameManager : NetworkBehaviour
         UpdateHUD(type, slotIdx, playerId);
         
         SFXManager.Instance.PlayClip(SFXManager.Instance.swapClip);
+        gameState = GameState.Animation;
         yield return StartCoroutine(Display.Instance.SwapColor(gameBoard, targetX, targetY, playerId));
         
         RedrawBoard();
+        RedropCoins();
+        gameState = GameState.Playing;
     }
 
     void UpdateHUD(TileType type, int slotIdx, int playerId) {
@@ -256,7 +276,6 @@ public class GameManager : NetworkBehaviour
     void RedrawBoard() {
         Display.Instance.ClearCoins();
         Display.Instance.DrawFullBoard(gameBoard);
-        RedropCoins();
     }
 
     void RedropCoins() {
@@ -271,8 +290,9 @@ public class GameManager : NetworkBehaviour
                     gameBoard.SetCellOccupancy(x, y, 0);
                     gameBoard.PlaceCoin(x, playerId, out int yOut);
 
+                    StartCoroutine(DropCoin(x, yOut, y, playerId));
                     CheckPowerUps(x, yOut, playerId, out bool redrawTile);
-                    DropCoin(x, yOut, y, playerId, redrawTile);
+                    if(redrawTile) Display.Instance.RedrawNormalTile(x, yOut);
                 }
             }
         }
@@ -296,14 +316,28 @@ public class GameManager : NetworkBehaviour
 
     void EndGame(int winPlayerId) {
         Debug.Log("victory player " + winPlayerId);
+
+        Time.timeScale = 0f; // pause game until it is reset
+        gameState = GameState.GameOver;
+        HUD.Instance.ShowWinScreen(winPlayerId);
+    }
+
+    public void RestartGame() {
+        if(isOnlineGame) {
+            RequestRestartGameRpc();
+        }
+        else {
+            InitializeGame();
+            RedrawBoard();
+            HUD.Instance.ResetHUD();
+            HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
+        }
     }
 
     // ~~~~~~~~ NETWORK FUNCTIONS ~~~~~~~~~
 
     public override void OnNetworkSpawn() {
         if (IsServer) {
-            // NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-
             InitializeGame();
 
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds) {
@@ -333,8 +367,10 @@ public class GameManager : NetworkBehaviour
         player2 = new Player();
         currentPlayer = initCurrentPlayer;
         gameState = initGameState;
+        Time.timeScale = 1f;
 
-        Display.Instance.DrawFullBoard(gameBoard);
+        RedrawBoard();
+        HUD.Instance.ResetHUD();
         HUD.Instance.UpdateCurrPlayer("Start player ", currentPlayer);
     }
 
@@ -354,7 +390,7 @@ public class GameManager : NetworkBehaviour
     void ApplyDropRpc(int xPos, int yPos, int playerId) {
         if(!IsServer) gameBoard.PlaceCoin(xPos, playerId, out int _); // clients mirror server if coin was placed
 
-        ApplyDroppedCoin(xPos, yPos, playerId);
+        StartCoroutine(ApplyDroppedCoin(xPos, yPos, playerId));
     }
 
     [Rpc(SendTo.Server)]
@@ -392,6 +428,17 @@ public class GameManager : NetworkBehaviour
     void ApplySwapRpc(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
         StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
     }
+
+    [Rpc(SendTo.Server)]
+    void RequestRestartGameRpc() {
+        // reinitialize on server and send to both players
+        InitializeGame();
+        TileType[] types = gameBoard.GetTileTypes();
+
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds) {
+            SendInitialGameStateRpc(types, currentPlayer, gameState, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        }
+    }
     
 }
 
@@ -414,5 +461,7 @@ public class TileProbability {
 
 public enum GameState {
     Playing,
-    Waiting
+    Waiting,
+    Animation,
+    GameOver
 }

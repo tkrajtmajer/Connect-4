@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using TMPro;
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
 
 public class HUD: MonoBehaviour {
 
@@ -21,6 +23,10 @@ public class HUD: MonoBehaviour {
 
     public event Action CancelledPowerup;
 
+    [Header("Game Over")]
+    public GameObject gameOverScreen;
+    public TMP_Text gameOverText;
+
     void Awake() {
         if (Instance != null && Instance != this) {
             Destroy(this.gameObject);
@@ -33,6 +39,7 @@ public class HUD: MonoBehaviour {
         player2SlotItems = new GameObject[player2Slots.Length];
 
         cancelPowerUpPrefab.SetActive(false);
+        gameOverScreen.SetActive(false);
     }
 
     public void AddPowerUp(int playerId, int slotIdx, TileType powerUpType) {
@@ -69,5 +76,36 @@ public class HUD: MonoBehaviour {
 
     public void UpdateCurrPlayer(string text, int currPlayer) {
         currentPlayerText.text = text + currPlayer;
+    }
+
+    public void ShowWinScreen(int winner) {
+        gameOverScreen.SetActive(true);
+        gameOverText.text = "Winner player " + winner;
+    }
+
+    public void RematchGame() {
+        GameManager.Instance.RestartGame();
+    }
+
+    public void ResetHUD() {
+        gameOverScreen.SetActive(false);
+
+        for (int i = 1; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                RemovePowerUp(i, j);
+            }
+        }
+    }
+
+    public void QuitToMenu() {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
+
+    public async void QuitToMenuOnline() {
+        Time.timeScale = 1f;
+        await ConnectionManager.Instance.LeaveSession();
+        // NetworkManager.Singleton.SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+        SceneManager.LoadScene("MainMenu");
     }
 }
