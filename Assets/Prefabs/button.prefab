@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 5878246648617130720}
   - component: {fileID: 3705930186554719557}
   - component: {fileID: 7454337946170316170}
+  - component: {fileID: 4686822938522525708}
   m_Layer: 5
   m_Name: button
   m_TagString: Untagged
@@ -257,4 +258,29 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3705930186554719557}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4686822938522525708}
+        m_TargetAssemblyTypeName: Playable, Assembly-CSharp
+        m_MethodName: PlayAudioClip
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4686822938522525708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5247082840668052704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cd01fb5b5f09e7ee9b0b99c08382db6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Playable
+  audioClip: {fileID: 8300000, guid: 0c886cb09755a8c968b0873c125f3d58, type: 3}

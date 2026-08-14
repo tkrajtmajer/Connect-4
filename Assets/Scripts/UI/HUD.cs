@@ -8,6 +8,7 @@ public class HUD: MonoBehaviour {
     public static HUD Instance { get; private set; }
 
     public TMP_Text currentPlayerText;
+    public AudioClip clickButtonAudio;
 
     [Header("PowerUps")]
     public GameObject powerUpPrefab;
@@ -66,7 +67,7 @@ public class HUD: MonoBehaviour {
         CancelledPowerup?.Invoke();
     }
 
-    public void UpdateCurrPlayer(int currPlayer) {
-        currentPlayerText.text = "Turn player " + currPlayer;
+    public void UpdateCurrPlayer(string text, int currPlayer) {
+        currentPlayerText.text = text + currPlayer;
     }
 }
