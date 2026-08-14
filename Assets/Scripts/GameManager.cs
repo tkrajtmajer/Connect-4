@@ -15,10 +15,11 @@ public class GameManager : NetworkBehaviour
     public Dictionary<TileType, float> tileProbDict;
     public bool isOnlineGame;
 
-    Board gameBoard;
+    internal Board gameBoard;
     Player player1;
     Player player2;
     int currentPlayer;
+    int localPlayer;
     public GameState gameState;
     Dictionary<ulong, int> clientIdToPlayerId = new Dictionary<ulong, int>(); // save ref between client id and player nr
     System.Random rng = new System.Random();
@@ -53,6 +54,7 @@ public class GameManager : NetworkBehaviour
         player1 = new Player();
         player2 = new Player();
         currentPlayer = rng.Next(1, 3);
+        localPlayer = currentPlayer;
         gameState = GameState.Playing;
         Time.timeScale = 1f;
     }
@@ -304,6 +306,7 @@ public class GameManager : NetworkBehaviour
 
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        if(!isOnlineGame) localPlayer = currentPlayer;
         GetPlayer(currentPlayer).usedPowerUpInTurn = false;
         HUD.Instance.UpdateCurrPlayer("Turn player ", currentPlayer);
     }
@@ -314,6 +317,10 @@ public class GameManager : NetworkBehaviour
 
     public int GetCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public int GetLocalPlayer() {
+        return localPlayer;
     }
 
     public void HandleCancelPowerup() {
@@ -359,7 +366,7 @@ public class GameManager : NetworkBehaviour
         clientIdToPlayerId[clientId] = playerId;
 
         TileType[] types = gameBoard.GetTileTypes();
-        SendInitialGameStateRpc(types, currentPlayer, gameState, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+        SendInitialGameStateRpc(types, currentPlayer, gameState, playerId, RpcTarget.Single(clientId, RpcTargetUse.Temp));
     }
 
     int GetPlayerIdForClient(ulong clientId) {
@@ -369,11 +376,12 @@ public class GameManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.SpecifiedInParams)]
-    void SendInitialGameStateRpc(TileType[] types, int initCurrentPlayer, GameState initGameState, RpcParams rpcParams = default) {
+    void SendInitialGameStateRpc(TileType[] types, int initCurrentPlayer, GameState initGameState, int initLocalPlayer, RpcParams rpcParams = default) {
         gameBoard = new Board(boardWidth, boardHeight, types);
         player1 = new Player();
         player2 = new Player();
         currentPlayer = initCurrentPlayer;
+        localPlayer = initLocalPlayer;
         gameState = initGameState;
         Time.timeScale = 1f;
 
@@ -449,7 +457,8 @@ public class GameManager : NetworkBehaviour
         TileType[] types = gameBoard.GetTileTypes();
 
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds) {
-            SendInitialGameStateRpc(types, currentPlayer, gameState, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            int playerId = GetPlayerIdForClient(clientId);
+            SendInitialGameStateRpc(types, currentPlayer, gameState, playerId, RpcTarget.Single(clientId, RpcTargetUse.Temp));
         }
     }
     

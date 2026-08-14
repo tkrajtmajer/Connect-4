@@ -14,6 +14,8 @@ public class Display: MonoBehaviour
     public GameObject playerCoinPrefab;
     float gravity = 9.81f;
 
+    public GameObject previewCoinPrefab;
+
     [Header("Powerups Setup")]
     public float boardRotationSpeed;
     public float boardFlipSpeed;
@@ -235,5 +237,28 @@ public class Display: MonoBehaviour
 
         Destroy(fromGO);
         Destroy(toGO);
+    }
+
+    public void DeactiveCoinPreview() {
+        previewCoinPrefab.SetActive(false);
+    }
+
+    public void ActivateCoinPreview(Vector2 mousePos) {
+        float boardX = Mathf.FloorToInt(mousePos.x + GameManager.Instance.gameBoard.width / 2f);
+
+        float xPos = boardX - (GameManager.Instance.gameBoard.width / 2f) + drawOffset.x;
+        float yPos = (GameManager.Instance.gameBoard.height / 2f) + drawOffset.y;
+
+        int playerId = GameManager.Instance.GetCurrentPlayer();
+
+        CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
+        Color playerColor = playerId == 1 ? preset.player1Color : preset.player2Color;
+        playerColor.a = 50f / 255;
+        Sprite playerSprite = playerId == 1 ? preset.player1Sprite : preset.player2Sprite;
+
+        previewCoinPrefab.SetActive(true);
+        previewCoinPrefab.GetComponent<SpriteRenderer>().color = playerColor;
+        previewCoinPrefab.GetComponent<SpriteRenderer>().sprite = playerSprite;
+        previewCoinPrefab.transform.position = new Vector3(xPos, yPos, 0);
     }
 }
