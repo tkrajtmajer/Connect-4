@@ -9,9 +9,11 @@ public class Display: MonoBehaviour
     public Transform parentBoard;
     public GameObject boardTilePrefab;
     GameObject[,] boardTileGOs;
+    GameObject[,] coinGOs;
 
     public Transform parentCoins;
     public GameObject playerCoinPrefab;
+    public float transparency = 50;
     float gravity = 9.81f;
 
     public GameObject previewCoinPrefab;
@@ -85,8 +87,9 @@ public class Display: MonoBehaviour
         boardCollider.size = new Vector2(board.width, board.height);
     }
 
-    public void ClearCoins() {
+    public void ClearCoins(Board board) {
         ClearParent(parentCoins);
+        coinGOs = new GameObject[board.width, board.height];
     }
 
     void ClearParent(Transform parent) {
@@ -106,6 +109,7 @@ public class Display: MonoBehaviour
         CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
 
         GameObject coinGO = Instantiate(playerCoinPrefab, new Vector3(xPosF, initYPosF, 0), Quaternion.identity, parentCoins);
+        coinGOs[xPos, finalYPos] = coinGO;
         Color playerColor = playerId == 1 ? preset.player1Color : preset.player2Color;
         coinGO.GetComponent<SpriteRenderer>().color = playerColor;
 
@@ -239,6 +243,58 @@ public class Display: MonoBehaviour
         Destroy(toGO);
     }
 
+    public void HighlightCoinsAroundCenter(Board board, Vector2 mousePos, int playingId, int playerIdToHighlight) {
+        int centerX = Mathf.FloorToInt(mousePos.x + GameManager.Instance.gameBoard.width / 2f);
+        int centerY = Mathf.FloorToInt(mousePos.y + GameManager.Instance.gameBoard.height / 2f);
+
+        if(board.GetCellOccupancy(centerX, centerY) != playingId) return;
+
+        for(int i = -1; i < 2; i ++) {
+            for(int j = -1; j < 2; j ++) {
+                int x = centerX + i;
+                int y = centerY + j;
+
+                if(x < 0 || x >= board.width) continue;
+                if(y < 0 || y >= board.height) continue;
+
+                if(x == centerX && y == centerY) continue;
+                if (coinGOs[x, y] == null) continue;
+
+                if(board.GetCellOccupancy(x, y) == playerIdToHighlight) {
+                    SpriteRenderer sr = coinGOs[x, y].GetComponent<SpriteRenderer>();
+
+                    Color color = sr.color;
+                    color.a = transparency / 255f;
+                    sr.color = color;
+                }
+            }
+        }
+    }
+
+    public void DeselectCoinsAroundCenter(Board board, Vector2 mousePos) {
+        int centerX = Mathf.FloorToInt(mousePos.x + GameManager.Instance.gameBoard.width / 2f);
+        int centerY = Mathf.FloorToInt(mousePos.y + GameManager.Instance.gameBoard.height / 2f);
+
+        for(int i = -1; i < 2; i ++) {
+            for(int j = -1; j < 2; j ++) {
+                int x = centerX + i;
+                int y = centerY + j;
+
+                if(x < 0 || x >= board.width) continue;
+                if(y < 0 || y >= board.height) continue;
+
+                if(x == centerX && y == centerY) continue;
+                if (coinGOs[x, y] == null) continue;
+
+                SpriteRenderer sr = coinGOs[x, y].GetComponent<SpriteRenderer>();
+
+                Color color = sr.color;
+                color.a = 1f;
+                sr.color = color;
+            }
+        }
+    }
+
     public void DeactiveCoinPreview() {
         previewCoinPrefab.SetActive(false);
     }
@@ -253,7 +309,7 @@ public class Display: MonoBehaviour
 
         CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
         Color playerColor = playerId == 1 ? preset.player1Color : preset.player2Color;
-        playerColor.a = 50f / 255;
+        playerColor.a = transparency / 255;
         Sprite playerSprite = playerId == 1 ? preset.player1Sprite : preset.player2Sprite;
 
         previewCoinPrefab.SetActive(true);

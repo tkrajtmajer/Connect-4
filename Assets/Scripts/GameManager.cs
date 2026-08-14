@@ -20,11 +20,11 @@ public class GameManager : NetworkBehaviour
     Player player2;
     int currentPlayer;
     int localPlayer;
-    public GameState gameState;
+    internal GameState gameState;
     Dictionary<ulong, int> clientIdToPlayerId = new Dictionary<ulong, int>(); // save ref between client id and player nr
     System.Random rng = new System.Random();
 
-    TileType pendingPowerUpType;
+    internal TileType pendingPowerUpType;
     int pendingPowerUpSlot;
     int pendingPowerUpPlayerId;
 
@@ -278,7 +278,7 @@ public class GameManager : NetworkBehaviour
     }
 
     void RedrawBoard() {
-        Display.Instance.ClearCoins();
+        Display.Instance.ClearCoins(gameBoard);
         Display.Instance.DrawFullBoard(gameBoard);
     }
 

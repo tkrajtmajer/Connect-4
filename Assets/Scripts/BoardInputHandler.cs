@@ -7,8 +7,20 @@ public class BoardInputHandler: MonoBehaviour {
     public static BoardInputHandler Instance { get; private set; }
     public event Action<Vector2> MouseClicked;
 
+    Vector2 previousMousePos;
+
+    void Awake() {
+        if (Instance != null && Instance != this) {
+            Destroy(this.gameObject);
+        }
+        else {
+            Instance = this;
+        }
+    }
+
     void Update() {
         UpdateDropPreview();
+        UpdateWaitingPreview();
 
         if (Mouse.current.leftButton.wasPressedThisFrame) {
             Vector2 screenPos = Mouse.current.position.ReadValue();
@@ -48,12 +60,34 @@ public class BoardInputHandler: MonoBehaviour {
         Display.Instance.ActivateCoinPreview(mousePos);
     }
 
-    void Awake() {
-        if (Instance != null && Instance != this) {
-            Destroy(this.gameObject);
+    void UpdateWaitingPreview() {
+
+        GameManager gm = GameManager.Instance;
+
+        if(gm.gameState != GameState.Waiting) return;
+
+        Vector2 screenPos = Mouse.current.position.ReadValue();
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(screenPos);
+        
+        Collider2D hit = Physics2D.OverlapPoint(mousePos);
+        if (hit == null || hit.gameObject != gameObject) {
+            Display.Instance.DeactiveCoinPreview();
+            return;
         }
-        else {
-            Instance = this;
+
+        Display.Instance.DeselectCoinsAroundCenter(gm.gameBoard, previousMousePos);
+        previousMousePos = mousePos;
+
+        int playerId = gm.GetCurrentPlayer();
+        int otherPlayerId = playerId == 1 ? 2 : 1;
+
+        if(gm.pendingPowerUpType == TileType.BlowUp) {
+            Display.Instance.HighlightCoinsAroundCenter(gm.gameBoard, mousePos, playerId, playerId);
+            Display.Instance.HighlightCoinsAroundCenter(gm.gameBoard, mousePos, playerId, otherPlayerId);
+        }
+
+        else if(gm.pendingPowerUpType == TileType.SwapNeighbor) {
+            Display.Instance.HighlightCoinsAroundCenter(gm.gameBoard, mousePos, playerId, otherPlayerId);
         }
     }
 }
