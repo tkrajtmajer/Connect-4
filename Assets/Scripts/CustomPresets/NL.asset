@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0536825121f47e48fb76a567ac70fba9, type: 3}
+  m_Name: NL
+  m_EditorClassIdentifier: Assembly-CSharp::CustomPreset
+  player1Sprite: {fileID: 8687556802499368966, guid: 64995f4c039af0ffdb25e80465f73d93, type: 3}
+  player1Color: {r: 1, g: 1, b: 1, a: 1}
+  player2Sprite: {fileID: 21300000, guid: 59219aed5eb610107899c95b0b285b5c, type: 3}
+  player2Color: {r: 1, g: 1, b: 1, a: 1}
+  normalTileColor: {r: 0.032707363, g: 0.076815546, b: 0.1981132, a: 1}
+  normalBgColor: {r: 1, g: 1, b: 1, a: 1}
+  rotateBoardTileColor: {r: 0.03529412, g: 0.078431375, b: 0.2, a: 1}
+  rotateBgColor: {r: 1, g: 1, b: 1, a: 1}
+  flipBoardTileColor: {r: 0.03529412, g: 0.078431375, b: 0.2, a: 1}
+  flipBgColor: {r: 1, g: 1, b: 1, a: 1}
+  blowupTileColor: {r: 0.03529412, g: 0.078431375, b: 0.2, a: 1}
+  blowupBgColor: {r: 1, g: 1, b: 1, a: 1}
+  swapNeighborTileColor: {r: 0.03529412, g: 0.078431375, b: 0.2, a: 1}
+  swapBgColor: {r: 1, g: 1, b: 1, a: 1}
+  powerupRotate: {fileID: 21300000, guid: a454c6d32d15bebbb9131b1db8bea847, type: 3}
+  powerupFlip: {fileID: 21300000, guid: 877ecd3072a205703bfd9c4283e9f69d, type: 3}
+  powerupBlowup: {fileID: 21300000, guid: 546b39b2427171ac498d072922fa581b, type: 3}
+  powerupSwap: {fileID: 21300000, guid: 9c60217083f9ec57dab58616d14180df, type: 3}

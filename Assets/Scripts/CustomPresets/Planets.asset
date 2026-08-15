@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0536825121f47e48fb76a567ac70fba9, type: 3}
+  m_Name: Planets
+  m_EditorClassIdentifier: Assembly-CSharp::CustomPreset
+  player1Sprite: {fileID: 21300000, guid: de7238ebd8c57c3c898f1dfdcfbc68ba, type: 3}
+  player1Color: {r: 1, g: 1, b: 1, a: 1}
+  player2Sprite: {fileID: 21300000, guid: 042455dd5fdd60113b7e1f4b260ebcba, type: 3}
+  player2Color: {r: 1, g: 1, b: 1, a: 1}
+  normalTileColor: {r: 0.1532574, g: 0.18469481, b: 0.38679248, a: 1}
+  normalBgColor: {r: 0.07342471, g: 0.09113898, b: 0.20754719, a: 1}
+  rotateBoardTileColor: {r: 0.29803923, g: 0.29803923, b: 0.29803923, a: 1}
+  rotateBgColor: {r: 0.18867922, g: 0.18867922, b: 0.18867922, a: 1}
+  flipBoardTileColor: {r: 0.26666668, g: 0.5647059, b: 0.21568628, a: 1}
+  flipBgColor: {r: 0.11312955, g: 0.254717, b: 0.08891065, a: 1}
+  blowupTileColor: {r: 0.9411765, g: 0.65882355, b: 0, a: 1}
+  blowupBgColor: {r: 0.3160377, g: 0.25493476, b: 0.11627802, a: 1}
+  swapNeighborTileColor: {r: 0.72156864, g: 0.20392157, b: 0, a: 1}
+  swapBgColor: {r: 0.2783019, g: 0.111611836, b: 0.04594606, a: 1}
+  powerupRotate: {fileID: 21300000, guid: 2d8731f9cb8d144a7bb0c7c67144f40a, type: 3}
+  powerupFlip: {fileID: 21300000, guid: 71d949e565a6b30e1bab62df25d25956, type: 3}
+  powerupBlowup: {fileID: 21300000, guid: 42d6e94a335c0be01a05b128983dea85, type: 3}
+  powerupSwap: {fileID: 21300000, guid: 5f26e0f0a77af1780a57ddfd907c1c1f, type: 3}
