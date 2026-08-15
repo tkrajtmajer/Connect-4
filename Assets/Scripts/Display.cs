@@ -34,7 +34,10 @@ public class Display: MonoBehaviour
         }
     }
 
-    // draw the board according to which player placed their coins where
+    /// <summary>
+    /// Instantiates one tile GameObject per board cell.
+    /// Uses the specified preset to set color and sprite per tile.
+    /// </summary>
     public void DrawFullBoard(Board board) {
         ClearParent(parentBoard);
         CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
@@ -87,6 +90,9 @@ public class Display: MonoBehaviour
         boardCollider.size = new Vector2(board.width, board.height);
     }
 
+    /// <summary>
+    /// Clears coins from the board.
+    /// </summary>
     public void ClearCoins(Board board) {
         ClearParent(parentCoins);
         coinGOs = new GameObject[board.width, board.height];
@@ -96,11 +102,19 @@ public class Display: MonoBehaviour
         for (int i = parent.childCount - 1; i >= 0; i--) Destroy(parent.GetChild(i).gameObject);
     }
 
+    /// <summary>
+    /// Redraws a power up tile as a normal one.
+    /// </summary>
     public void RedrawNormalTile(int x, int y) {
         boardTileGOs[x, y].GetComponent<TilePrefab>().SetupTile(PlayerSettings.Instance.gameLookPreset.normalTileColor, 
                                                                 PlayerSettings.Instance.gameLookPreset.normalBgColor, null);
     }
 
+    /// <summary>
+    /// Instantiates a new coin prefab and starts a coroutine to animate it dropping.
+    /// </summary>
+    /// <param name="initYPos">The starting y position (either at the top of the board or the previous y when redropping)</param>
+    /// <param name="finalYPos">The final position (calculated from where the board has the lowest point to drop)</param>
     public IEnumerator DrawCoin(Board board, int xPos, int initYPos, int finalYPos, int playerId) {
         float xPosF = xPos - board.width/2f + drawOffset.x;
         float initYPosF = initYPos - board.height/2f + drawOffset.y;
@@ -119,6 +133,7 @@ public class Display: MonoBehaviour
         yield return StartCoroutine(DropCoin(coinGO, finalYPosF, board, xPosF, xPos, finalYPos));
     }
 
+    // animates the coin dropping under gravity
     IEnumerator DropCoin(GameObject coinGO, float finalYPosF, Board board, float xPosF, int x, int y) {
         float velocity = 0;
         Vector3 currentPos = coinGO.transform.position;
@@ -135,6 +150,7 @@ public class Display: MonoBehaviour
         }
     }
     
+    // animates the board rotation over boardRotationSpeed seconds
     public IEnumerator RotateBoard() {
         Quaternion startRot = boardGO.transform.rotation;
         Quaternion endRot = startRot * Quaternion.Euler(0, 0, -90f);
@@ -154,13 +170,14 @@ public class Display: MonoBehaviour
         boardGO.transform.rotation = Quaternion.identity;
     }
 
+    // animates the board flip over boardFlipSpeed seconds
     public IEnumerator FlipBoard() {
         Vector3 startScale = boardGO.transform.localScale;
         Vector3 endScale = new Vector3(1, -1 * startScale.y, 1);
 
         float t = 0;
 
-        while (t < boardRotationSpeed) {
+        while (t < boardFlipSpeed) {
             t += Time.deltaTime;
             boardGO.transform.localScale = Vector3.Lerp(startScale, endScale, t / boardFlipSpeed);
             yield return null;
@@ -173,6 +190,7 @@ public class Display: MonoBehaviour
         boardGO.transform.localScale = new Vector3(1, 1, 1);
     }
 
+    // spawns blowup effects around the center position and waits for x seconds
     public IEnumerator BlowUpTiles(Board board, int centerX, int centerY) {
         // List<GameObject> blowUpPrefabs = new List<GameObject>();
 
@@ -193,6 +211,7 @@ public class Display: MonoBehaviour
         yield return new WaitForSeconds(blowupTime);
     }
 
+    // animates the swap transition for swapSpeed seconds; fades between two colors and sprites
     public IEnumerator SwapColor(Board board, int targetX, int targetY, int playerId) {
 
         float x = targetX - (board.width/2f) + drawOffset.x;
@@ -243,6 +262,7 @@ public class Display: MonoBehaviour
         Destroy(toGO);
     }
 
+    // used as a visual guide for the player when they are selecting which tiles to blow up or flip
     public void HighlightCoinsAroundCenter(Board board, Vector2 mousePos, int playingId, int playerIdToHighlight) {
         int centerX = Mathf.FloorToInt(mousePos.x + GameManager.Instance.gameBoard.width / 2f);
         int centerY = Mathf.FloorToInt(mousePos.y + GameManager.Instance.gameBoard.height / 2f);
@@ -299,6 +319,7 @@ public class Display: MonoBehaviour
         previewCoinPrefab.SetActive(false);
     }
 
+    // used as a visual guide to show where the current coin would drop on mouse over
     public void ActivateCoinPreview(Vector2 mousePos) {
         float boardX = Mathf.FloorToInt(mousePos.x + GameManager.Instance.gameBoard.width / 2f);
 

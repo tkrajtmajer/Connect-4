@@ -21,8 +21,6 @@ public class HUD: MonoBehaviour {
     GameObject[] player1SlotItems;
     GameObject[] player2SlotItems;
 
-    // public event Action CancelledPowerup;
-
     [Header("Game Over")]
     public GameObject gameOverScreen;
     public TMP_Text gameOverText;
@@ -70,8 +68,6 @@ public class HUD: MonoBehaviour {
 
     public void HideCancelPowerUp() {
         cancelPowerUpPrefab.SetActive(false);
-        // GameManager.Instance.gameState = GameState.Playing;
-        // CancelledPowerup?.Invoke();
         GameManager.Instance.HandleCancelPowerup();
     }
 
@@ -106,7 +102,6 @@ public class HUD: MonoBehaviour {
     public async void QuitToMenuOnline() {
         Time.timeScale = 1f;
         await ConnectionManager.Instance.LeaveSession();
-        // NetworkManager.Singleton.SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
         SceneManager.LoadScene("MainMenu");
     }
 }

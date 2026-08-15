@@ -7,6 +7,9 @@ public class Board {
     Tile[,] cells;
     System.Random rng = new System.Random();
 
+    /// <summary>
+    /// Creates a new board and randomly assigns tile types from the given probabilities.
+    /// </summary>
     public Board(int boardWidth, int boardHeight, Dictionary<TileType, float> tileProbabilities) {
         this.width = boardWidth;
         this.height = boardHeight;
@@ -16,6 +19,9 @@ public class Board {
         PopulateCellsBasedOnProbabilities(tileProbabilities);
     }
 
+    /// <summary>
+    /// Recreates the board from the given array of tile types.
+    /// </summary>
     public Board(int boardWidth, int boardHeight, TileType[] tileTypes) {
         this.width = boardWidth;
         this.height = boardHeight;
@@ -29,6 +35,9 @@ public class Board {
         }
     }
 
+    /// <summary>
+    /// Returns an array of tile types from the board.
+    /// </summary>
     public TileType[] GetTileTypes() {
         TileType[] types = new TileType[width * height];
 

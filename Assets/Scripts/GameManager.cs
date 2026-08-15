@@ -47,6 +47,9 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Initializes the game parameters and sets the game to initial state. Randomly chooses a player to start the game. 
+    /// </summary>
     void InitializeGame() {
         tileProbDict = tileProbList.ToDictionary();
 
@@ -61,14 +64,16 @@ public class GameManager : NetworkBehaviour
 
     void OnEnable() {
         BoardInputHandler.Instance.MouseClicked += HandlePlayerInput;
-        // HUD.Instance.CancelledPowerup += HandleCancelPowerup;
     }
 
     void OnDisable() {
         BoardInputHandler.Instance.MouseClicked -= HandlePlayerInput;
-        // HUD.Instance.CancelledPowerup -= HandleCancelPowerup;
     }
 
+    /// <summary>
+    /// Applies player input to the board if the input is valid. Converts the click position into a board coordinate (int).
+    /// </summary>
+    /// <param name="mousePos">Player click position</param>
     void HandlePlayerInput(Vector2 mousePos) {
 
         if(gameState == GameState.Animation || gameState == GameState.GameOver) return;
@@ -122,6 +127,11 @@ public class GameManager : NetworkBehaviour
         // Debug.Log("current player " + currentPlayer);
     }
 
+    /// <summary>
+    /// Checks if the tile at the given cell position (x, y) will give the player a powerup.
+    /// If not a normal tile, and a player lands on it, they will be awarded the corresponding powerup.
+    /// </summary>
+    /// <param name="redrawTile">True if the tile needs to be redrawn as Normal</param>
     public void CheckPowerUps(int xPos, int yPos, int playerId, out bool redrawTile) {
         Player player = GetPlayer(playerId);
         redrawTile = false;
@@ -130,22 +140,22 @@ public class GameManager : NetworkBehaviour
             TileType type = gameBoard.GetCellType(xPos, yPos);
 
             if(player.GivePlayerPowerUp(type, out int slotIdx)) {
-                Debug.Log("gave player tile " + type.ToString());
+                // Debug.Log("gave player tile " + type.ToString());
 
                 redrawTile = true;
                 HUD.Instance.AddPowerUp(playerId, slotIdx, type);
                 gameBoard.UseTile(xPos, yPos); 
             }
-
-            // Debug.Log("give powerup to player " + playerId);
         }
     }
-
+    
+    // starts the drop coin visual coroutine + plays the coin drop sfx
     IEnumerator DropCoin(int xPos, int yPos, int yInit, int playerId) {
         SFXManager.Instance.PlayClip(SFXManager.Instance.coinDropClip);
         yield return StartCoroutine(Display.Instance.DrawCoin(gameBoard, xPos, yInit, yPos, playerId));
     }
 
+    // checks the win condition for the current position, called when a player drops the tile
     void CheckWinCondition(int xPos, int yPos) {
         // check win condition
         if (gameBoard.CheckWin(xPos, yPos, currentPlayer)) {
@@ -153,6 +163,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    // checks the win condition across the entire board, called when a player uses a powerup that changes the entire board state
     void CheckWinConditionBoard() {
         // check win condition over entire board
         for(int xPos = 0; xPos < gameBoard.width; xPos++) {
@@ -166,6 +177,12 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Called when a player decides to use their powerup.
+    /// If the powerup can be applied in that turn (rotate/flip) it is applied immediately,
+    /// else the game waits for additional input.
+    /// </summary>
+    /// <param name="slotIdx">The slot the player had the power up in, used to delete it.</param>
     public void HandlePowerUp(TileType type, int playerId, int slotIdx) {
         if (playerId != currentPlayer) return;
         if (GetPlayer(currentPlayer).usedPowerUpInTurn == true) return; // only allow one powerup per turn
@@ -203,6 +220,8 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    // applies a rotation to the board logically and visually, removes the powerup from the given player
+    // redraws the board and redrops the coins
     IEnumerator HandleRotation(TileType type, int slotIdx, int playerId) {
         gameBoard.RotateBoard();
         GetPlayer(playerId).usedPowerUpInTurn = true;
@@ -218,6 +237,8 @@ public class GameManager : NetworkBehaviour
         gameState = GameState.Playing;
     }
 
+    // applies a flip to the board logically and visually, removes the powerup from the given player
+    // redraws the board and redrops the coins
     IEnumerator HandleFlip(TileType type, int slotIdx, int playerId) {
         gameBoard.FlipBoard();
         GetPlayer(playerId).usedPowerUpInTurn = true;
@@ -233,10 +254,9 @@ public class GameManager : NetworkBehaviour
         gameState = GameState.Playing;
     }
 
-    // TODO: add way to undo waiting condition
+    // applies a blowup effect to the board logically and visually, removes the powerup from the given player
+    // redraws the board and redrops the coins
     IEnumerator HandleBlowup(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
-        // add way to blow up coins either w animation or code(?)
-
         gameBoard.BlowUpCells(centerX, centerY);
         GetPlayer(playerId).usedPowerUpInTurn = true;
         UpdateHUD(type, slotIdx, playerId);
@@ -250,12 +270,15 @@ public class GameManager : NetworkBehaviour
         gameState = GameState.Playing;
     }
 
+    // applies a swap to the board logically and visually, removes the powerup from the given player
+    // redraws the board and redrops the coins
     void HandleSwap(TileType type, int slotIdx, int playerId, int centerX, int centerY) {
 
         gameBoard.PickRandomNeighbor(centerX, centerY, playerId, out int targetX, out int targetY);
         StartCoroutine(DoSwap(type, slotIdx, playerId, targetX, targetY));
     }
 
+    // handles the actual swap
     IEnumerator DoSwap(TileType type, int slotIdx, int playerId, int targetX, int targetY) {
         gameBoard.RandomSwapNeighbor(targetX, targetY, playerId);
         GetPlayer(playerId).usedPowerUpInTurn = true;
@@ -270,6 +293,7 @@ public class GameManager : NetworkBehaviour
         gameState = GameState.Playing;
     }
 
+    // removes powerup from player when they use it
     void UpdateHUD(TileType type, int slotIdx, int playerId) {
         Player player = GetPlayer(playerId);
 
@@ -277,13 +301,14 @@ public class GameManager : NetworkBehaviour
         HUD.Instance.RemovePowerUp(playerId, slotIdx);
     }
 
+    // clears all coins and redraws the board tiles
     void RedrawBoard() {
         Display.Instance.ClearCoins(gameBoard);
         Display.Instance.DrawFullBoard(gameBoard);
     }
 
+    // redrops all coins 
     void RedropCoins() {
-        // drop coins after or flip rotation
 
         for(int x = 0; x < gameBoard.width; x++) {
             for(int y = 0; y < gameBoard.height; y++) {
@@ -303,7 +328,8 @@ public class GameManager : NetworkBehaviour
 
         CheckWinConditionBoard();
     }
-
+    
+    // switches current player, updates HUD
     void UpdateCurrentPlayer() {
         currentPlayer = (currentPlayer == 1) ? 2 : 1;
         if(!isOnlineGame) localPlayer = currentPlayer;
@@ -311,32 +337,40 @@ public class GameManager : NetworkBehaviour
         HUD.Instance.UpdateCurrPlayer("Turn player ", currentPlayer);
     }
 
+    // returns player reference from player id
     Player GetPlayer(int playerId) {
         return playerId == 1 ? player1 : player2;
     }
 
+    // returns current player 
     public int GetCurrentPlayer() {
         return currentPlayer;
     }
 
+    // returns local player
     public int GetLocalPlayer() {
         return localPlayer;
     }
 
+    // called when the player cancels their powerup
     public void HandleCancelPowerup() {
         Debug.Log("cancelled powerup");
         if(isOnlineGame) UpdateStatusRpc(GameState.Playing);
         else gameState = GameState.Playing;
     }
 
+    // ends the game, updates the HUD
     void EndGame(int winPlayerId) {
-        Debug.Log("victory player " + winPlayerId);
+        // Debug.Log("victory player " + winPlayerId);
 
         Time.timeScale = 0f; // pause game until it is reset
         gameState = GameState.GameOver;
         HUD.Instance.ShowWinScreen(winPlayerId);
     }
 
+    /// <summary>
+    /// Reinitializes game state. Redraws the board and resets all effects.
+    /// </summary>
     public void RestartGame() {
         if(isOnlineGame) {
             RequestRestartGameRpc();
@@ -351,6 +385,9 @@ public class GameManager : NetworkBehaviour
 
     // ~~~~~~~~ NETWORK FUNCTIONS ~~~~~~~~~
 
+    /// <summary>
+    /// Handles the server initializing the game (board with powerup tiles) and sending the data to each client. 
+    /// </summary>
     public override void OnNetworkSpawn() {
         if (IsServer) {
             InitializeGame();
@@ -361,6 +398,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    // sends initial game data to the client
     void OnClientConnected(ulong clientId) {
         int playerId = clientIdToPlayerId.Count == 0 ? 1 : 2;
         clientIdToPlayerId[clientId] = playerId;
