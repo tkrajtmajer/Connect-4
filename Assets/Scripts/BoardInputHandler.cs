@@ -22,15 +22,19 @@ public class BoardInputHandler: MonoBehaviour {
         UpdateDropPreview();
         UpdateWaitingPreview();
 
-        if (Mouse.current.leftButton.wasPressedThisFrame) {
-            Vector2 screenPos = Mouse.current.position.ReadValue();
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(screenPos);
+        bool mouseClicked = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        bool touchClicked = Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
 
-            Collider2D hit = Physics2D.OverlapPoint(mousePos);
-            if (hit != null && hit.gameObject == gameObject) {
-                // Debug.Log("Clicked board at " + mousePos.x + ", " + mousePos.y);
-                MouseClicked?.Invoke(mousePos);
-            }
+        if (!mouseClicked && !touchClicked) return;
+
+        // Vector2 screenPos = Mouse.current.position.ReadValue();
+        Vector2 screenPos = mouseClicked ? Mouse.current.position.ReadValue() : Touchscreen.current.primaryTouch.position.ReadValue();        
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(screenPos);
+
+        Collider2D hit = Physics2D.OverlapPoint(mousePos);
+        if (hit != null && hit.gameObject == gameObject) {
+            // Debug.Log("Clicked board at " + mousePos.x + ", " + mousePos.y);
+            MouseClicked?.Invoke(mousePos);
         }
     }
 
