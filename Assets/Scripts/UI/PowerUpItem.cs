@@ -5,13 +5,11 @@ using System;
 
 public class PowerUpItem: MonoBehaviour {
 
-    // public TMP_Text powerUpName;
     public Image powerUpCard;
     public Image powerUpSprite;
     TileType powerUpType;
     int belongsToPlayer;
     int slotIdx;
-    // public bool isCancellable;
 
     public event Action<TileType, int, int> TriggerPowerUp;
 
@@ -19,9 +17,6 @@ public class PowerUpItem: MonoBehaviour {
         this.belongsToPlayer = playerId;
         this.powerUpType = powerUpType;
         this.slotIdx = slotIdx;
-
-        // if(powerUpType == TileType.BlowUp || powerUpType == TileType.SwapNeighbor) isCancellable = true;
-        // else isCancellable = false;
 
         CustomPreset preset = PlayerSettings.Instance.gameLookPreset;
 
